@@ -1,48 +1,19 @@
-import Image from "next/image";
-import Link from "next/link";
+import HomeContent from "@/components/HomeContent";
+import LoadingSpinner from "@/components/mobile/LoadingSpinner";
+import { Suspense } from "react";
+
+function HomeLoading() {
+  return (
+    <div className="flex flex-1 items-center justify-center bg-gray-50 py-20">
+      <LoadingSpinner className="h-8 w-8 text-blue-600" label="Loading" />
+    </div>
+  );
+}
 
 export default function Home() {
   return (
-    <main className="flex flex-1 flex-col items-center justify-center bg-gray-50 px-6 py-10">
-      <div className="w-full max-w-4xl text-center">
-        <div className="mb-8">
-          <Image
-            src="/Splash.png"
-            alt="You've Been Served - Bohn & Associates"
-            width={900}
-            height={500}
-            className="mx-auto rounded-lg shadow-lg"
-            priority
-          />
-        </div>
-
-        <h1 className="mb-4 text-3xl font-bold text-gray-900">
-          Bohn &amp; Associates
-        </h1>
-        <p className="mb-2 text-lg text-gray-600">
-          Process Serving Tracking System
-        </p>
-        <p className="mb-8 text-sm text-gray-500">
-          Choose a portal below to continue.
-        </p>
-
-        <div className="flex flex-col justify-center gap-4 sm:flex-row">
-          <Link
-            href="/mobile"
-            prefetch={false}
-            className="rounded-lg bg-blue-600 px-8 py-3 text-white transition hover:bg-blue-700"
-          >
-            Mobile Portal (Field Users)
-          </Link>
-          <Link
-            href="/admin"
-            prefetch={false}
-            className="rounded-lg bg-gray-800 px-8 py-3 text-white transition hover:bg-black"
-          >
-            Admin Portal
-          </Link>
-        </div>
-      </div>
-    </main>
+    <Suspense fallback={<HomeLoading />}>
+      <HomeContent />
+    </Suspense>
   );
 }

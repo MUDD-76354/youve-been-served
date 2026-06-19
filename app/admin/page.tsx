@@ -2,6 +2,7 @@
 
 import AttemptsTable from "@/components/admin/AttemptsTable";
 import AdminNav, { AdminView } from "@/components/admin/AdminNav";
+import RoleGuard from "@/components/RoleGuard";
 import { useToast } from "@/components/ToastProvider";
 import CreateJobForm from "@/components/admin/CreateJobForm";
 import DashboardOverview from "@/components/admin/DashboardOverview";
@@ -85,10 +86,11 @@ export default function AdminPortal() {
   }
 
   return (
-    <div className="min-h-full bg-gray-50">
-      <AdminNav activeView={activeView} onViewChange={setActiveView} />
+    <RoleGuard requiredRole="admin">
+      <div className="min-h-full bg-gray-50">
+        <AdminNav activeView={activeView} onViewChange={setActiveView} />
 
-      <main className="mx-auto max-w-6xl px-6 py-8">
+        <main className="mx-auto max-w-6xl px-6 py-8">
         {loading && activeView !== "attempts" && activeView !== "reports" ? (
           <p className="text-sm text-gray-600">Loading jobs...</p>
         ) : null}
@@ -114,7 +116,8 @@ export default function AdminPortal() {
           <AttemptsTable attempts={attempts} />
         ) : null}
         {activeView === "reports" ? <ReportsSection /> : null}
-      </main>
-    </div>
+        </main>
+      </div>
+    </RoleGuard>
   );
 }

@@ -1,6 +1,7 @@
 "use client";
 
 import AttemptForm, { type AttemptFlowStep } from "@/components/mobile/AttemptForm";
+import RoleGuard from "@/components/RoleGuard";
 import { useToast } from "@/components/ToastProvider";
 import JobList from "@/components/mobile/JobList";
 import ServerIdentity from "@/components/mobile/ServerIdentity";
@@ -110,7 +111,8 @@ export default function MobilePortal() {
         : "Log Attempt";
 
   return (
-    <main className="flex flex-1 flex-col bg-gray-50 px-4 py-5 sm:px-6">
+    <RoleGuard requiredRole="process_server">
+      <main className="flex flex-1 flex-col bg-gray-50 px-4 py-5 sm:px-6">
       <div className="mx-auto flex w-full max-w-lg flex-1 flex-col">
         <header className="mb-5">
           <p className="text-xs font-semibold uppercase tracking-wider text-blue-600">
@@ -170,6 +172,7 @@ export default function MobilePortal() {
           </section>
         )}
       </div>
-    </main>
+      </main>
+    </RoleGuard>
   );
 }
