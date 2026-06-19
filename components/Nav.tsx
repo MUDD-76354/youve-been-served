@@ -14,6 +14,7 @@ export default function Nav() {
           <Link
             key={link.href}
             href={link.href}
+            prefetch={link.href === "/" ? undefined : false}
             className="text-sm font-medium text-gray-600 transition hover:text-blue-600"
           >
             {link.label}

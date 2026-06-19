@@ -1,8 +1,9 @@
 import Image from "next/image";
+import Link from "next/link";
 
 export default function Home() {
   return (
-    <main className="flex min-h-screen flex-col items-center justify-center p-6">
+    <main className="flex flex-1 flex-col items-center justify-center bg-gray-50 px-6 py-10">
       <div className="w-full max-w-4xl text-center">
         <div className="mb-8">
           <Image
@@ -15,24 +16,31 @@ export default function Home() {
           />
         </div>
 
-        <h1 className="text-3xl font-bold mb-4">Bohn & Associates</h1>
-        <p className="text-lg text-gray-600 mb-8">
+        <h1 className="mb-4 text-3xl font-bold text-gray-900">
+          Bohn &amp; Associates
+        </h1>
+        <p className="mb-2 text-lg text-gray-600">
           Process Serving Tracking System
         </p>
+        <p className="mb-8 text-sm text-gray-500">
+          Choose a portal below to continue.
+        </p>
 
-        <div className="flex flex-col sm:flex-row gap-4 justify-center">
-          <a
+        <div className="flex flex-col justify-center gap-4 sm:flex-row">
+          <Link
             href="/mobile"
-            className="px-8 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition"
+            prefetch={false}
+            className="rounded-lg bg-blue-600 px-8 py-3 text-white transition hover:bg-blue-700"
           >
             Mobile Portal (Field Users)
-          </a>
-          <a
+          </Link>
+          <Link
             href="/admin"
-            className="px-8 py-3 bg-gray-800 text-white rounded-lg hover:bg-black transition"
+            prefetch={false}
+            className="rounded-lg bg-gray-800 px-8 py-3 text-white transition hover:bg-black"
           >
             Admin Portal
-          </a>
+          </Link>
         </div>
       </div>
     </main>
