@@ -41,8 +41,11 @@ export default function AttemptSuccess({
           Attempt logged successfully
         </h2>
         <p className="mt-2 text-sm leading-relaxed text-gray-700">
-          Your attempt for <strong>{job.defendantName}</strong> was saved. Your
-          messaging app should have opened to send the notification SMS.
+          Your attempt for <strong>{job.defendantName}</strong> was saved.
+          {isSuccess
+            ? " This job has been marked Completed and removed from your active job list."
+            : null}{" "}
+          Your messaging app should have opened to send the notification SMS.
         </p>
         <p className="mt-3 inline-block rounded-full bg-white px-3 py-1 text-xs font-semibold text-green-800 ring-1 ring-green-200">
           {isSuccess ? "Successful Serve" : "Failed Attempt"}

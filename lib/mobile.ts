@@ -22,7 +22,9 @@ export function filterJobsForServer(jobs: Job[], serverName: string): Job[] {
   }
 
   return jobs.filter(
-    (job) => job.processServer.trim().toLowerCase() === normalizedServerName,
+    (job) =>
+      job.processServer.trim().toLowerCase() === normalizedServerName &&
+      job.status !== "Completed",
   );
 }
 

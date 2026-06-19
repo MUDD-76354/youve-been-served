@@ -28,6 +28,18 @@ export const emptyStatePresets = {
       "Try searching by a different defendant name, address, or process server. You can also clear the search to see all jobs.",
     icon: "search",
   },
+  adminNoCompletedJobs: {
+    title: "No completed jobs yet",
+    description:
+      "Jobs are marked Completed automatically after a successful serve is logged on Mobile.",
+    icon: "briefcase",
+  },
+  adminNoCompletedJobsSearch: {
+    title: "No matching completed jobs",
+    description:
+      "Try searching by a different defendant name, address, or process server. You can also clear the search to see all completed jobs.",
+    icon: "search",
+  },
   adminNoAttempts: {
     title: "No attempts logged yet",
     description:
@@ -59,9 +71,9 @@ export const emptyStatePresets = {
     icon: "user",
   },
   mobileNoJobs: {
-    title: "No jobs assigned to you",
+    title: "No active jobs assigned to you",
     description:
-      "Check back later, or confirm your name matches what the office used when creating the job.",
+      "You have no open assignments right now. Completed jobs are removed from this list automatically.",
     icon: "briefcase",
   },
   modalNoPhotos: {

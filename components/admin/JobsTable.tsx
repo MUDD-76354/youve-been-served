@@ -1,7 +1,11 @@
 "use client";
 
 import AdminSearchBar from "@/components/admin/AdminSearchBar";
-import { emptyStatePresets, EmptyStateFromPreset } from "@/components/EmptyState";
+import {
+  emptyStatePresets,
+  EmptyStateFromPreset,
+  type EmptyStatePreset,
+} from "@/components/EmptyState";
 import JobDetailsModal from "@/components/admin/JobDetailsModal";
 import EditJobForm from "@/components/admin/EditJobForm";
 import JobStatusSelect from "@/components/admin/JobStatusSelect";
@@ -15,6 +19,10 @@ type JobsTableProps = {
   attempts: Attempt[];
   onUpdateJob: (jobId: string, input: EditJobInput) => Promise<void>;
   onUpdateJobStatus: (jobId: string, status: JobStatus) => Promise<void>;
+  title?: string;
+  description?: string;
+  emptyPreset?: EmptyStatePreset;
+  emptySearchPreset?: EmptyStatePreset;
 };
 
 function formatCreatedAt(value: string): string {
@@ -30,6 +38,10 @@ export default function JobsTable({
   attempts,
   onUpdateJob,
   onUpdateJobStatus,
+  title = "Jobs List",
+  description = "Track assignments, change status from the list, view attempt photos, and edit jobs.",
+  emptyPreset = emptyStatePresets.adminNoJobs,
+  emptySearchPreset = emptyStatePresets.adminNoJobsSearch,
 }: JobsTableProps) {
   const [editingJob, setEditingJob] = useState<Job | null>(null);
   const [viewingJob, setViewingJob] = useState<Job | null>(null);
@@ -61,9 +73,7 @@ export default function JobsTable({
 
   const showEmptyState = jobs.length === 0 || filteredJobs.length === 0;
   const jobsEmptyPreset =
-    jobs.length === 0
-      ? emptyStatePresets.adminNoJobs
-      : emptyStatePresets.adminNoJobsSearch;
+    jobs.length === 0 ? emptyPreset : emptySearchPreset;
 
   async function handleStatusChange(jobId: string, status: JobStatus) {
     await onUpdateJobStatus(jobId, status);
@@ -78,11 +88,8 @@ export default function JobsTable({
   return (
     <section className="space-y-6">
       <div>
-        <h2 className="text-xl font-semibold text-gray-900">Jobs List</h2>
-        <p className="mt-1 text-sm text-gray-600">
-          Track assignments, change status from the list, view attempt photos,
-          and edit jobs.
-        </p>
+        <h2 className="text-xl font-semibold text-gray-900">{title}</h2>
+        <p className="mt-1 text-sm text-gray-600">{description}</p>
       </div>
 
       <AdminSearchBar

@@ -36,8 +36,20 @@ export type EditJobInput = NewJobInput & {
   status: JobStatus;
 };
 
+export function isActiveJob(job: Job): boolean {
+  return job.status !== "Completed";
+}
+
+export function filterActiveJobs(jobs: Job[]): Job[] {
+  return jobs.filter(isActiveJob);
+}
+
+export function filterCompletedJobs(jobs: Job[]): Job[] {
+  return jobs.filter((job) => job.status === "Completed");
+}
+
 export function getDashboardStats(jobs: Job[]) {
-  const openJobs = jobs.filter((job) => job.status !== "Completed");
+  const openJobs = filterActiveJobs(jobs);
   const attemptsToday = jobs.reduce((total, job) => total + job.attemptsToday, 0);
 
   return {

@@ -48,6 +48,7 @@ type AttemptFormProps = {
   onBack: () => void;
   onSelectDifferentJob: (draft: AttemptDraft) => void;
   onFlowChange?: (step: AttemptFlowStep) => void;
+  onAttemptSaved?: (attemptType: AttemptType) => void;
 };
 
 export default function AttemptForm({
@@ -57,6 +58,7 @@ export default function AttemptForm({
   onBack,
   onSelectDifferentJob,
   onFlowChange,
+  onAttemptSaved,
 }: AttemptFormProps) {
   const { showSuccess, showError } = useToast();
   const resolvedDraft = initialDraft ?? createEmptyAttemptDraft(job);
@@ -171,6 +173,7 @@ export default function AttemptForm({
 
       openSmsApp(PROCESS_SERVERS_GROUP_NUMBERS, message);
       setSubmitPhase("idle");
+      onAttemptSaved?.(attemptType);
       updateStep("success");
       showSuccess(
         `${attemptType === "success" ? "Successful serve" : "Failed attempt"} for ${job.defendantName} was saved.`,

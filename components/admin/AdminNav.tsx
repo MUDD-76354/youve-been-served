@@ -1,4 +1,10 @@
-type AdminView = "dashboard" | "create" | "jobs" | "attempts" | "reports";
+type AdminView =
+  | "dashboard"
+  | "create"
+  | "jobs"
+  | "completed"
+  | "attempts"
+  | "reports";
 
 type AdminNavProps = {
   activeView: AdminView;
@@ -9,6 +15,7 @@ const navItems: { id: AdminView; label: string }[] = [
   { id: "dashboard", label: "Dashboard" },
   { id: "create", label: "Create Job" },
   { id: "jobs", label: "Jobs List" },
+  { id: "completed", label: "Completed" },
   { id: "attempts", label: "Attempts" },
   { id: "reports", label: "Reports" },
 ];

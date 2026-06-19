@@ -1,3 +1,4 @@
+import { updateJobStatus } from "@/lib/jobs";
 import { supabase } from "@/lib/supabase";
 
 export type AttemptType = "success" | "failed";
@@ -271,6 +272,8 @@ export async function saveAttempt(
     if (error) {
       throw new Error(error.message);
     }
+
+    await updateJobStatus(jobId, "Completed");
 
     return mapAttemptRow(row as AttemptRow);
   }

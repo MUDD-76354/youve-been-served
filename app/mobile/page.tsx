@@ -13,6 +13,7 @@ import {
   draftHasEnteredData,
 } from "@/lib/attemptDraft";
 import { getErrorMessage } from "@/lib/errors";
+import { type AttemptType } from "@/lib/attempts";
 import { fetchJobs } from "@/lib/jobs";
 import {
   filterJobsForServer,
@@ -103,6 +104,16 @@ export default function MobilePortal() {
     setAttemptDraft(null);
   }
 
+  async function handleAttemptSaved(attemptType: AttemptType) {
+    await loadJobs();
+
+    if (attemptType === "success") {
+      setSelectedJob((current) =>
+        current ? { ...current, status: "Completed" } : current,
+      );
+    }
+  }
+
   const attemptPageTitle =
     attemptFlowStep === "success"
       ? "Attempt Logged"
@@ -138,6 +149,7 @@ export default function MobilePortal() {
             onBack={handleBackFromAttempt}
             onSelectDifferentJob={handleSelectDifferentJob}
             onFlowChange={setAttemptFlowStep}
+            onAttemptSaved={handleAttemptSaved}
           />
         ) : (
           <section className="flex flex-1 flex-col">

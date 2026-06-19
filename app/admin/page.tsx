@@ -2,13 +2,21 @@
 
 import AttemptsTable from "@/components/admin/AttemptsTable";
 import AdminNav, { AdminView } from "@/components/admin/AdminNav";
-import RoleGuard from "@/components/RoleGuard";
-import { useToast } from "@/components/ToastProvider";
 import CreateJobForm from "@/components/admin/CreateJobForm";
 import DashboardOverview from "@/components/admin/DashboardOverview";
 import JobsTable from "@/components/admin/JobsTable";
 import ReportsSection from "@/components/admin/ReportsSection";
-import { EditJobInput, Job, JobStatus, NewJobInput } from "@/lib/admin";
+import { emptyStatePresets } from "@/components/EmptyState";
+import RoleGuard from "@/components/RoleGuard";
+import { useToast } from "@/components/ToastProvider";
+import {
+  EditJobInput,
+  filterActiveJobs,
+  filterCompletedJobs,
+  Job,
+  JobStatus,
+  NewJobInput,
+} from "@/lib/admin";
 import { fetchAttempts, type Attempt } from "@/lib/attempts";
 import { getErrorMessage } from "@/lib/errors";
 import { createJob, fetchJobs, updateJob, updateJobStatus } from "@/lib/jobs";
@@ -85,6 +93,9 @@ export default function AdminPortal() {
     );
   }
 
+  const activeJobs = filterActiveJobs(jobs);
+  const completedJobs = filterCompletedJobs(jobs);
+
   return (
     <RoleGuard requiredRole="admin">
       <div className="min-h-full bg-gray-50">
@@ -106,10 +117,22 @@ export default function AdminPortal() {
         ) : null}
         {activeView === "jobs" && !loading && !attemptsLoading ? (
           <JobsTable
-            jobs={jobs}
+            jobs={activeJobs}
             attempts={attempts}
             onUpdateJob={handleUpdateJob}
             onUpdateJobStatus={handleUpdateJobStatus}
+          />
+        ) : null}
+        {activeView === "completed" && !loading && !attemptsLoading ? (
+          <JobsTable
+            jobs={completedJobs}
+            attempts={attempts}
+            onUpdateJob={handleUpdateJob}
+            onUpdateJobStatus={handleUpdateJobStatus}
+            title="Completed Jobs"
+            description="Jobs marked Completed after a successful serve was logged on Mobile. You can still view details, photos, and edit if needed."
+            emptyPreset={emptyStatePresets.adminNoCompletedJobs}
+            emptySearchPreset={emptyStatePresets.adminNoCompletedJobsSearch}
           />
         ) : null}
         {activeView === "attempts" && !attemptsLoading ? (
