@@ -1,11 +1,7 @@
 "use client";
 
 import LoadingSpinner from "@/components/mobile/LoadingSpinner";
-import {
-  getPortalPathForRole,
-  getStoredRole,
-  type UserRole,
-} from "@/lib/role";
+import { getStoredRole, type UserRole } from "@/lib/role";
 import { useRouter } from "next/navigation";
 import { type ReactNode, useEffect, useState } from "react";
 
@@ -21,13 +17,8 @@ export default function RoleGuard({ children, requiredRole }: RoleGuardProps) {
   useEffect(() => {
     const role = getStoredRole();
 
-    if (!role) {
+    if (!role || role !== requiredRole) {
       router.replace("/");
-      return;
-    }
-
-    if (role !== requiredRole) {
-      router.replace(getPortalPathForRole(role));
       return;
     }
 

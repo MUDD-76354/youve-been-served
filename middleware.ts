@@ -3,7 +3,7 @@ import { NextResponse } from "next/server";
 
 export function middleware(_request: NextRequest) {
   // Intentionally no redirects here.
-  // Users must navigate to /admin or /mobile manually from the home page or nav.
+  // Portal routes are only reached after a role is selected on the home page.
   return NextResponse.next();
 }
 

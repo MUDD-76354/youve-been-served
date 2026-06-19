@@ -16,20 +16,16 @@ const roleOptions: {
   {
     role: "process_server",
     buttonClassName:
-      "rounded-lg bg-blue-600 px-8 py-3 text-white transition hover:bg-blue-700",
+      "rounded-lg bg-blue-600 px-8 py-4 text-lg font-semibold text-white transition hover:bg-blue-700",
   },
   {
     role: "admin",
     buttonClassName:
-      "rounded-lg bg-gray-800 px-8 py-3 text-white transition hover:bg-black",
+      "rounded-lg bg-gray-800 px-8 py-4 text-lg font-semibold text-white transition hover:bg-black",
   },
 ];
 
-type RoleSelectionProps = {
-  allowSwitch?: boolean;
-};
-
-export default function RoleSelection({ allowSwitch = false }: RoleSelectionProps) {
+export default function RoleSelection() {
   const router = useRouter();
 
   function handleSelect(role: UserRole) {
@@ -58,9 +54,7 @@ export default function RoleSelection({ allowSwitch = false }: RoleSelectionProp
           Process Serving Tracking System
         </p>
         <p className="mb-8 text-sm text-gray-500">
-          {allowSwitch
-            ? "Choose a role to continue or switch your access."
-            : "Select your role to continue."}
+          Select your role to continue.
         </p>
 
         <div className="flex flex-col justify-center gap-4 sm:flex-row">
