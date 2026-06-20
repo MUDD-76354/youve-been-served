@@ -1,36 +1,35 @@
 "use client";
 
+import { useAuth } from "@/components/AuthProvider";
+import LoadingSpinner from "@/components/mobile/LoadingSpinner";
+import { getPortalPathForAuth } from "@/lib/role";
 import Image from "next/image";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
-import {
-  getPortalPathForRole,
-  ROLE_LABELS,
-  storeRole,
-  type UserRole,
-} from "@/lib/role";
-
-const roleOptions: {
-  role: UserRole;
-  buttonClassName: string;
-}[] = [
-  {
-    role: "process_server",
-    buttonClassName:
-      "rounded-lg bg-blue-600 px-8 py-4 text-lg font-semibold text-white transition hover:bg-blue-700",
-  },
-  {
-    role: "admin",
-    buttonClassName:
-      "rounded-lg bg-gray-800 px-8 py-4 text-lg font-semibold text-white transition hover:bg-black",
-  },
-];
+import { useEffect } from "react";
 
 export default function RoleSelection() {
   const router = useRouter();
+  const { session, profile, user, isLoading, signOut } = useAuth();
 
-  function handleSelect(role: UserRole) {
-    storeRole(role);
-    router.push(getPortalPathForRole(role));
+  useEffect(() => {
+    if (isLoading || !session) {
+      return;
+    }
+
+    const redirectPath = getPortalPathForAuth(profile, user);
+
+    if (redirectPath) {
+      router.replace(redirectPath);
+    }
+  }, [isLoading, session, profile, user, router]);
+
+  if (isLoading) {
+    return (
+      <div className="flex flex-1 items-center justify-center bg-gray-50 py-20">
+        <LoadingSpinner className="h-8 w-8 text-blue-600" label="Loading" />
+      </div>
+    );
   }
 
   return (
@@ -54,20 +53,26 @@ export default function RoleSelection() {
           Process Serving Tracking System
         </p>
         <p className="mb-8 text-sm text-gray-500">
-          Select your role to continue.
+          Sign in to access the admin or field portal.
         </p>
 
-        <div className="flex flex-col justify-center gap-4 sm:flex-row">
-          {roleOptions.map(({ role, buttonClassName }) => (
+        <div className="flex flex-col items-center justify-center gap-4">
+          <Link
+            href="/login"
+            className="rounded-lg bg-blue-600 px-8 py-4 text-lg font-semibold text-white transition hover:bg-blue-700"
+          >
+            Sign in
+          </Link>
+
+          {session ? (
             <button
-              key={role}
               type="button"
-              onClick={() => handleSelect(role)}
-              className={buttonClassName}
+              onClick={() => void signOut()}
+              className="text-sm font-medium text-gray-600 transition hover:text-gray-900"
             >
-              {ROLE_LABELS[role]}
+              Sign out
             </button>
-          ))}
+          ) : null}
         </div>
       </div>
     </main>

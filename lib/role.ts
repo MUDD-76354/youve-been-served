@@ -1,57 +1,63 @@
-export type UserRole = "process_server" | "admin";
+import type { User } from "@supabase/supabase-js";
+import type { UserProfile } from "@/lib/profiles";
 
-export const USER_ROLE_STORAGE_KEY = "youve-been-served-user-role";
+export type ProfileRole = "admin" | "process_server" | "user";
 
-export const ROLE_LABELS: Record<UserRole, string> = {
-  process_server: "Process Server (User)",
+export type PortalRole = "admin" | "process_server";
+
+export const ROLE_LABELS: Record<PortalRole, string> = {
+  process_server: "Process Server",
   admin: "Admin",
 };
 
-export function getStoredRole(): UserRole | null {
-  if (typeof window === "undefined") {
+export function getMetadataRole(user: User | null | undefined): string | null {
+  if (!user) {
     return null;
   }
 
-  const value = localStorage.getItem(USER_ROLE_STORAGE_KEY);
+  const role = user.app_metadata?.role ?? user.user_metadata?.role;
+  return typeof role === "string" ? role : null;
+}
 
-  if (value === "process_server" || value === "admin") {
-    return value;
+export function isAdminRole(
+  profile: UserProfile | null | undefined,
+  user?: User | null,
+): boolean {
+  if (profile?.role === "admin") {
+    return true;
+  }
+
+  return getMetadataRole(user) === "admin";
+}
+
+export function isMobileRole(profile: UserProfile | null | undefined): boolean {
+  return profile?.role === "process_server" || profile?.role === "user";
+}
+
+export function getPortalPathForAuth(
+  profile: UserProfile | null,
+  user?: User | null,
+): string | null {
+  if (isAdminRole(profile, user)) {
+    return "/admin";
+  }
+
+  if (isMobileRole(profile)) {
+    return "/mobile";
   }
 
   return null;
 }
 
-export function storeRole(role: UserRole): void {
-  localStorage.setItem(USER_ROLE_STORAGE_KEY, role);
-}
-
-export function clearStoredRole(): void {
-  localStorage.removeItem(USER_ROLE_STORAGE_KEY);
-}
-
-export function getPortalPathForRole(role: UserRole): string {
-  return role === "admin" ? "/admin" : "/mobile";
-}
-
-export function canAccessRoute(
-  role: UserRole | null,
-  pathname: string,
+export function canAccessAdminPortal(
+  profile: UserProfile | null | undefined,
+  user?: User | null,
 ): boolean {
-  if (!role) {
-    return pathname === "/";
-  }
+  return isAdminRole(profile, user);
+}
 
-  if (pathname === "/") {
-    return true;
-  }
-
-  if (pathname.startsWith("/admin")) {
-    return role === "admin";
-  }
-
-  if (pathname.startsWith("/mobile")) {
-    return role === "process_server";
-  }
-
-  return true;
+export function canAccessMobilePortal(
+  profile: UserProfile | null | undefined,
+): boolean {
+  return isMobileRole(profile);
 }

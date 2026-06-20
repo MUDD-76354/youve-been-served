@@ -3,6 +3,8 @@
 import AttemptsTable from "@/components/admin/AttemptsTable";
 import AdminNav, { AdminView } from "@/components/admin/AdminNav";
 import CreateJobForm from "@/components/admin/CreateJobForm";
+import CreateUserForm from "@/components/admin/CreateUserForm";
+import ManageUsersSection from "@/components/admin/ManageUsersSection";
 import DashboardOverview from "@/components/admin/DashboardOverview";
 import JobsTable from "@/components/admin/JobsTable";
 import ReportsSection from "@/components/admin/ReportsSection";
@@ -102,7 +104,11 @@ export default function AdminPortal() {
         <AdminNav activeView={activeView} onViewChange={setActiveView} />
 
         <main className="mx-auto max-w-6xl px-6 py-8">
-        {loading && activeView !== "attempts" && activeView !== "reports" ? (
+        {loading &&
+        activeView !== "attempts" &&
+        activeView !== "reports" &&
+        activeView !== "createUser" &&
+        activeView !== "manageUsers" ? (
           <p className="text-sm text-gray-600">Loading jobs...</p>
         ) : null}
         {attemptsLoading && activeView === "attempts" ? (
@@ -115,6 +121,8 @@ export default function AdminPortal() {
         {activeView === "create" ? (
           <CreateJobForm onCreateJob={handleCreateJob} />
         ) : null}
+        {activeView === "createUser" ? <CreateUserForm /> : null}
+        {activeView === "manageUsers" ? <ManageUsersSection /> : null}
         {activeView === "jobs" && !loading && !attemptsLoading ? (
           <JobsTable
             jobs={activeJobs}

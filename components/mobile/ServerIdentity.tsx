@@ -7,6 +7,7 @@ type ServerIdentityProps = {
   value: string;
   suggestions: string[];
   compact?: boolean;
+  readOnly?: boolean;
   onChange: (name: string) => void;
 };
 
@@ -14,10 +15,22 @@ export default function ServerIdentity({
   value,
   suggestions,
   compact = false,
+  readOnly = false,
   onChange,
 }: ServerIdentityProps) {
-  const [isEditing, setIsEditing] = useState(!value.trim());
+  const [isEditing, setIsEditing] = useState(!value.trim() && !readOnly);
   const listId = "process-server-suggestions";
+
+  if (readOnly && value.trim()) {
+    return (
+      <div className="mb-5 rounded-xl border border-gray-200 bg-white px-4 py-3 shadow-sm">
+        <p className="text-xs font-medium uppercase tracking-wide text-gray-500">
+          Process Server
+        </p>
+        <p className="truncate text-base font-semibold text-gray-900">{value}</p>
+      </div>
+    );
+  }
 
   if (compact && !isEditing && value.trim()) {
     return (
