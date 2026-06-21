@@ -10,20 +10,40 @@ export const ROLE_LABELS: Record<PortalRole, string> = {
   admin: "Admin",
 };
 
+export function normalizeRole(
+  role: string | null | undefined,
+): ProfileRole | null {
+  if (!role) {
+    return null;
+  }
+
+  const normalized = role.trim().toLowerCase();
+
+  if (
+    normalized === "admin" ||
+    normalized === "process_server" ||
+    normalized === "user"
+  ) {
+    return normalized;
+  }
+
+  return null;
+}
+
 export function getMetadataRole(user: User | null | undefined): string | null {
   if (!user) {
     return null;
   }
 
   const role = user.app_metadata?.role ?? user.user_metadata?.role;
-  return typeof role === "string" ? role : null;
+  return typeof role === "string" ? role.trim().toLowerCase() : null;
 }
 
 export function isAdminRole(
   profile: UserProfile | null | undefined,
   user?: User | null,
 ): boolean {
-  if (profile?.role === "admin") {
+  if (normalizeRole(profile?.role) === "admin") {
     return true;
   }
 
@@ -31,7 +51,8 @@ export function isAdminRole(
 }
 
 export function isMobileRole(profile: UserProfile | null | undefined): boolean {
-  return profile?.role === "process_server" || profile?.role === "user";
+  const role = normalizeRole(profile?.role);
+  return role === "process_server" || role === "user";
 }
 
 export function getPortalPathForAuth(

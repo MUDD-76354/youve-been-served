@@ -14,6 +14,10 @@ export function storeServerName(name: string): void {
   localStorage.setItem(SERVER_NAME_STORAGE_KEY, name);
 }
 
+export function filterActiveJobs(jobs: Job[]): Job[] {
+  return jobs.filter((job) => job.status !== "Completed");
+}
+
 export function filterJobsForServer(jobs: Job[], serverName: string): Job[] {
   const normalizedServerName = serverName.trim().toLowerCase();
 

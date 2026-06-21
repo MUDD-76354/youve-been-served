@@ -1,15 +1,13 @@
+// TODO: Re-implement proper User/Admin role separation with working login
+
 "use client";
 
 import { useAuth } from "@/components/AuthProvider";
-import LoadingSpinner from "@/components/mobile/LoadingSpinner";
 import { useToast } from "@/components/ToastProvider";
-import { fetchUserProfile } from "@/lib/profile-client";
 import { getErrorMessage } from "@/lib/errors";
-import { getPortalPathForAuth } from "@/lib/role";
-import { getRememberMePreference, supabase } from "@/lib/supabase";
+import { getRememberMePreference } from "@/lib/supabase";
 import Image from "next/image";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 import { FormEvent, useEffect, useState } from "react";
 
 const inputClassName =
@@ -18,12 +16,12 @@ const inputClassName =
 const labelClassName = "block text-sm font-medium text-gray-700";
 
 export default function LoginPage() {
-  const router = useRouter();
-  const { showError } = useToast();
-  const { session, profile, user, isLoading, signIn } = useAuth();
+  const { showError, showSuccess } = useToast();
+  const { signIn } = useAuth();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
+  const [successMessage, setSuccessMessage] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [rememberMe, setRememberMe] = useState(true);
 
@@ -31,22 +29,18 @@ export default function LoginPage() {
     setRememberMe(getRememberMePreference());
   }, []);
 
-  useEffect(() => {
-    if (isLoading || !session) {
-      return;
-    }
-
-    const redirectPath = getPortalPathForAuth(profile, user);
-
-    if (redirectPath) {
-      router.replace(redirectPath);
-    }
-  }, [isLoading, session, profile, user, router]);
+  // Role-based auto-redirect disabled while RBAC is turned off.
+  // useEffect(() => {
+  //   if (isLoading || !session) return;
+  //   const redirectPath = getPortalPathForAuth(profile, user);
+  //   if (redirectPath) router.replace(redirectPath);
+  // }, [isLoading, session, profile, user, router]);
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setIsSubmitting(true);
     setError(null);
+    setSuccessMessage(null);
 
     try {
       const { error: signInError } = await signIn(email, password, rememberMe);
@@ -57,28 +51,10 @@ export default function LoginPage() {
         return;
       }
 
-      const { data } = await supabase.auth.getSession();
-      const nextSession = data.session;
-
-      if (!nextSession?.user) {
-        const message = "Signed in, but no active session was found.";
-        setError(message);
-        showError(message, "Sign in failed");
-        return;
-      }
-
-      const nextProfile = await fetchUserProfile(nextSession.user.id);
-      const redirectPath = getPortalPathForAuth(nextProfile, nextSession.user);
-
-      if (!redirectPath) {
-        const message =
-          "Your account does not have access to a portal. Contact an administrator.";
-        setError(message);
-        showError(message, "Access denied");
-        return;
-      }
-
-      router.replace(redirectPath);
+      const message =
+        "Signed in successfully. Open either portal below — role checks are temporarily disabled.";
+      setSuccessMessage(message);
+      showSuccess(message, "Signed in");
     } catch (err) {
       const message = getErrorMessage(err, "Failed to sign in.");
       setError(message);
@@ -86,14 +62,6 @@ export default function LoginPage() {
     } finally {
       setIsSubmitting(false);
     }
-  }
-
-  if (isLoading) {
-    return (
-      <div className="flex flex-1 items-center justify-center bg-gray-50 py-20">
-        <LoadingSpinner className="h-8 w-8 text-blue-600" label="Loading" />
-      </div>
-    );
   }
 
   return (
@@ -113,12 +81,22 @@ export default function LoginPage() {
         <div className="rounded-xl border border-gray-200 bg-white p-6 shadow-sm">
           <h1 className="text-2xl font-bold text-gray-900">Sign in</h1>
           <p className="mt-1 text-sm text-gray-600">
-            Use your Bohn &amp; Associates account credentials.
+            Optional sign-in. Both portals are open without role checks.
           </p>
+
+          <div className="mt-4 rounded-lg border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800">
+            Role-based redirects are disabled. Use the portal links below.
+          </div>
 
           {error ? (
             <div className="mt-4 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
               {error}
+            </div>
+          ) : null}
+
+          {successMessage ? (
+            <div className="mt-4 rounded-lg border border-green-200 bg-green-50 px-4 py-3 text-sm text-green-700">
+              {successMessage}
             </div>
           ) : null}
 
@@ -166,11 +144,17 @@ export default function LoginPage() {
             </button>
           </form>
 
-          <p className="mt-6 text-center text-sm text-gray-500">
-            <Link href="/" className="font-medium text-blue-600 hover:text-blue-800">
+          <div className="mt-6 flex flex-col items-center gap-2 text-sm">
+            <Link href="/admin" className="font-medium text-blue-600 hover:text-blue-800">
+              Admin Portal
+            </Link>
+            <Link href="/mobile" className="font-medium text-blue-600 hover:text-blue-800">
+              Field Portal
+            </Link>
+            <Link href="/" className="font-medium text-gray-600 hover:text-gray-900">
               Back to home
             </Link>
-          </p>
+          </div>
         </div>
       </div>
     </main>

@@ -1,11 +1,10 @@
+// TODO: Re-implement proper User/Admin role separation with working login
+
 "use client";
 
-import { useAuth } from "@/components/AuthProvider";
 import AttemptForm, { type AttemptFlowStep } from "@/components/mobile/AttemptForm";
-import RoleGuard from "@/components/RoleGuard";
 import { useToast } from "@/components/ToastProvider";
 import JobList from "@/components/mobile/JobList";
-import ServerIdentity from "@/components/mobile/ServerIdentity";
 import { Job } from "@/lib/admin";
 import {
   applyDraftToJob,
@@ -16,11 +15,10 @@ import {
 import { getErrorMessage } from "@/lib/errors";
 import { type AttemptType } from "@/lib/attempts";
 import { fetchJobs } from "@/lib/jobs";
-import { filterJobsForServer } from "@/lib/mobile";
+import { filterActiveJobs } from "@/lib/mobile";
 import { useCallback, useEffect, useMemo, useState } from "react";
 
 export default function MobilePortal() {
-  const { profile } = useAuth();
   const { showError } = useToast();
   const [jobs, setJobs] = useState<Job[]>([]);
   const [selectedJob, setSelectedJob] = useState<Job | null>(null);
@@ -29,8 +27,6 @@ export default function MobilePortal() {
   const [attemptFlowStep, setAttemptFlowStep] =
     useState<AttemptFlowStep>("form");
   const [attemptDraft, setAttemptDraft] = useState<AttemptDraft | null>(null);
-
-  const serverName = profile?.serverName ?? "";
 
   const loadJobs = useCallback(async () => {
     setLoading(true);
@@ -55,10 +51,7 @@ export default function MobilePortal() {
     void loadJobs();
   }, [loadJobs]);
 
-  const filteredJobs = useMemo(
-    () => filterJobsForServer(jobs, serverName),
-    [jobs, serverName],
-  );
+  const filteredJobs = useMemo(() => filterActiveJobs(jobs), [jobs]);
 
   function handleSelectJob(job: Job) {
     const nextDraft = attemptDraft
@@ -100,70 +93,59 @@ export default function MobilePortal() {
         : "Log Attempt";
 
   return (
-    <RoleGuard requiredRole="process_server">
-      <main className="flex flex-1 flex-col bg-gray-50 px-4 py-5 sm:px-6">
-        <div className="mx-auto flex w-full max-w-lg flex-1 flex-col">
-          <header className="mb-5">
-            <p className="text-xs font-semibold uppercase tracking-wider text-blue-600">
-              Bohn &amp; Associates
-            </p>
-            <h1 className="mt-1 text-2xl font-bold text-gray-900">
-              {selectedJob ? attemptPageTitle : "Field Portal"}
-            </h1>
-          </header>
+    <main className="flex flex-1 flex-col bg-gray-50 px-4 py-5 sm:px-6">
+      <div className="mx-auto flex w-full max-w-lg flex-1 flex-col">
+        <header className="mb-5">
+          <p className="text-xs font-semibold uppercase tracking-wider text-blue-600">
+            Bohn &amp; Associates
+          </p>
+          <h1 className="mt-1 text-2xl font-bold text-gray-900">
+            {selectedJob ? attemptPageTitle : "Field Portal"}
+          </h1>
+        </header>
 
-          <ServerIdentity
-            value={serverName}
-            suggestions={[]}
-            compact={Boolean(selectedJob)}
-            readOnly
-            onChange={() => {}}
+        {selectedJob ? (
+          <AttemptForm
+            job={selectedJob}
+            serverName={selectedJob.processServer}
+            initialDraft={attemptDraft}
+            onBack={handleBackFromAttempt}
+            onSelectDifferentJob={handleSelectDifferentJob}
+            onFlowChange={setAttemptFlowStep}
+            onAttemptSaved={handleAttemptSaved}
           />
+        ) : (
+          <section className="flex flex-1 flex-col">
+            <div className="mb-5">
+              <h2 className="text-lg font-bold text-gray-900">Jobs</h2>
+              <p className="mt-1 text-sm text-gray-600">
+                {filteredJobs.length} active job
+                {filteredJobs.length === 1 ? "" : "s"} available
+              </p>
+            </div>
 
-          {selectedJob ? (
-            <AttemptForm
-              job={selectedJob}
-              serverName={serverName}
-              initialDraft={attemptDraft}
-              onBack={handleBackFromAttempt}
-              onSelectDifferentJob={handleSelectDifferentJob}
-              onFlowChange={setAttemptFlowStep}
-              onAttemptSaved={handleAttemptSaved}
-            />
-          ) : (
-            <section className="flex flex-1 flex-col">
-              <div className="mb-5">
-                <h2 className="text-lg font-bold text-gray-900">Your Jobs</h2>
-                <p className="mt-1 text-sm text-gray-600">
-                  {serverName.trim()
-                    ? `${filteredJobs.length} job${filteredJobs.length === 1 ? "" : "s"} assigned to you`
-                    : "Your profile is missing a server name. Contact an administrator."}
-                </p>
+            {error ? (
+              <div className="mb-4 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+                {error}
               </div>
+            ) : null}
 
-              {error ? (
-                <div className="mb-4 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
-                  {error}
-                </div>
-              ) : null}
+            {attemptDraft && draftHasEnteredData(attemptDraft) ? (
+              <div className="mb-4 rounded-xl border border-blue-200 bg-blue-50 px-4 py-3 text-sm text-blue-800">
+                Your attempt details are saved. Select a job to continue where
+                you left off.
+              </div>
+            ) : null}
 
-              {attemptDraft && draftHasEnteredData(attemptDraft) ? (
-                <div className="mb-4 rounded-xl border border-blue-200 bg-blue-50 px-4 py-3 text-sm text-blue-800">
-                  Your attempt details are saved. Select a job to continue where
-                  you left off.
-                </div>
-              ) : null}
-
-              <JobList
-                jobs={filteredJobs}
-                loading={loading}
-                serverName={serverName}
-                onSelectJob={handleSelectJob}
-              />
-            </section>
-          )}
-        </div>
-      </main>
-    </RoleGuard>
+            <JobList
+              jobs={filteredJobs}
+              loading={loading}
+              serverName="available"
+              onSelectJob={handleSelectJob}
+            />
+          </section>
+        )}
+      </div>
+    </main>
   );
 }

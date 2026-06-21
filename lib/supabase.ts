@@ -15,8 +15,6 @@ function getSupabaseEnv() {
   return { url, key };
 }
 
-const { url, key } = getSupabaseEnv();
-
 let client: SupabaseClient | null = null;
 let clientMode: "local" | "session" | null = null;
 
@@ -94,6 +92,8 @@ export function getSupabaseClient(): SupabaseClient {
   if (client && clientMode === mode) {
     return client;
   }
+
+  const { url, key } = getSupabaseEnv();
 
   client = createClient(url, key, {
     auth: {

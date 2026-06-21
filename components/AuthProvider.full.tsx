@@ -1,6 +1,9 @@
-// TODO: Re-implement proper User/Admin role separation with working login
-
 "use client";
+
+/**
+ * Full AuthProvider implementation — not currently wired up.
+ * TODO: Re-enable once the site is stable by restoring this in AuthProvider.tsx.
+ */
 
 import {
   clearStoredProfile,
@@ -10,6 +13,7 @@ import {
 import { signInWithEmail, signOut as signOutClient } from "@/lib/auth-client";
 import { fetchUserProfile } from "@/lib/profile-client";
 import type { UserProfile } from "@/lib/profiles";
+import { ROLE_PROTECTION_ENABLED } from "@/lib/role-protection";
 import { supabase } from "@/lib/supabase";
 import type { Session, User } from "@supabase/supabase-js";
 import {
@@ -38,11 +42,8 @@ type AuthContextValue = {
 
 const AuthContext = createContext<AuthContextValue | null>(null);
 
-async function loadProfileForUser(
-  userId: string,
-  email?: string | null,
-): Promise<UserProfile | null> {
-  const profile = await fetchUserProfile(userId, email);
+async function loadProfileForUser(userId: string): Promise<UserProfile | null> {
+  const profile = await fetchUserProfile(userId);
 
   if (profile) {
     storeProfile(profile);
@@ -56,7 +57,7 @@ async function loadProfileForUser(
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [session, setSession] = useState<Session | null>(null);
   const [profile, setProfile] = useState<UserProfile | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState(ROLE_PROTECTION_ENABLED);
 
   const refreshAuth = useCallback(async () => {
     const { data } = await supabase.auth.getSession();
@@ -69,14 +70,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       return;
     }
 
-    const nextProfile = await loadProfileForUser(
-      nextSession.user.id,
-      nextSession.user.email,
-    );
+    const nextProfile = await loadProfileForUser(nextSession.user.id);
     setProfile(nextProfile);
   }, []);
 
   useEffect(() => {
+    if (!ROLE_PROTECTION_ENABLED) {
+      setIsLoading(false);
+      return;
+    }
+
     let active = true;
 
     async function initialize() {
@@ -101,10 +104,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         return;
       }
 
-      const nextProfile = await loadProfileForUser(
-        nextSession.user.id,
-        nextSession.user.email,
-      );
+      const nextProfile = await loadProfileForUser(nextSession.user.id);
       setProfile(nextProfile);
     });
 

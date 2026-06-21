@@ -1,3 +1,5 @@
+// TODO: Re-implement proper User/Admin role separation with working login
+
 "use client";
 
 import AttemptsTable from "@/components/admin/AttemptsTable";
@@ -9,7 +11,6 @@ import DashboardOverview from "@/components/admin/DashboardOverview";
 import JobsTable from "@/components/admin/JobsTable";
 import ReportsSection from "@/components/admin/ReportsSection";
 import { emptyStatePresets } from "@/components/EmptyState";
-import RoleGuard from "@/components/RoleGuard";
 import { useToast } from "@/components/ToastProvider";
 import {
   EditJobInput,
@@ -99,7 +100,6 @@ export default function AdminPortal() {
   const completedJobs = filterCompletedJobs(jobs);
 
   return (
-    <RoleGuard requiredRole="admin">
       <div className="min-h-full bg-gray-50">
         <AdminNav activeView={activeView} onViewChange={setActiveView} />
 
@@ -149,6 +149,5 @@ export default function AdminPortal() {
         {activeView === "reports" ? <ReportsSection /> : null}
         </main>
       </div>
-    </RoleGuard>
   );
 }

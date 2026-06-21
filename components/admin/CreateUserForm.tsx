@@ -1,12 +1,11 @@
+// TODO: Re-implement proper User/Admin role separation with working login
+
 "use client";
 
-import { useAuth } from "@/components/AuthProvider";
 import { useToast } from "@/components/ToastProvider";
 import { getErrorMessage } from "@/lib/errors";
 import type { CreateUserProfileInput } from "@/lib/profiles";
-import { canAccessAdminPortal } from "@/lib/role";
 import { createUserProfile } from "@/lib/users";
-import Link from "next/link";
 import { FormEvent, useState } from "react";
 
 const initialForm: CreateUserProfileInput = {
@@ -23,13 +22,10 @@ const labelClassName = "block text-sm font-medium text-gray-700";
 
 export default function CreateUserForm() {
   const { showSuccess, showError } = useToast();
-  const { session, profile, user, isLoading } = useAuth();
   const [form, setForm] = useState(initialForm);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
-
-  const isAdmin = canAccessAdminPortal(profile, user);
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -64,10 +60,6 @@ export default function CreateUserForm() {
     }
   }
 
-  if (isLoading) {
-    return <p className="text-sm text-gray-600">Checking admin session...</p>;
-  }
-
   return (
     <section className="space-y-6">
       <div>
@@ -77,28 +69,6 @@ export default function CreateUserForm() {
           name used for job assignment.
         </p>
       </div>
-
-      {!session || !isAdmin ? (
-        <div className="rounded-xl border border-gray-200 bg-white p-6 shadow-sm">
-          <h3 className="text-base font-semibold text-gray-900">
-            Admin sign in required
-          </h3>
-          <p className="mt-1 text-sm text-gray-600">
-            Sign in with an admin account to create new users.
-          </p>
-          <Link
-            href="/login"
-            className="mt-5 inline-block rounded-lg bg-gray-900 px-6 py-3 text-sm font-semibold text-white transition hover:bg-black"
-          >
-            Go to sign in
-          </Link>
-        </div>
-      ) : (
-        <div className="rounded-xl border border-gray-200 bg-white px-4 py-3 text-sm text-gray-700">
-          Signed in as{" "}
-          <span className="font-medium text-gray-900">{session.user.email}</span>
-        </div>
-      )}
 
       {error ? (
         <div className="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
@@ -112,89 +82,87 @@ export default function CreateUserForm() {
         </div>
       ) : null}
 
-      {session && isAdmin ? (
-        <form
-          onSubmit={handleSubmit}
-          className="rounded-xl border border-gray-200 bg-white p-6 shadow-sm"
+      <form
+        onSubmit={handleSubmit}
+        className="rounded-xl border border-gray-200 bg-white p-6 shadow-sm"
+      >
+        <div className="grid gap-5 md:grid-cols-2">
+          <label className={labelClassName}>
+            Email
+            <input
+              type="email"
+              required
+              value={form.email}
+              onChange={(event) =>
+                setForm((prev) => ({ ...prev, email: event.target.value }))
+              }
+              className={inputClassName}
+              placeholder="server@example.com"
+              autoComplete="off"
+            />
+          </label>
+
+          <label className={labelClassName}>
+            Password
+            <input
+              type="password"
+              required
+              minLength={6}
+              value={form.password}
+              onChange={(event) =>
+                setForm((prev) => ({ ...prev, password: event.target.value }))
+              }
+              className={inputClassName}
+              placeholder="At least 6 characters"
+              autoComplete="new-password"
+            />
+          </label>
+
+          <label className={labelClassName}>
+            Server Name
+            <input
+              type="text"
+              required
+              value={form.serverName}
+              onChange={(event) =>
+                setForm((prev) => ({
+                  ...prev,
+                  serverName: event.target.value,
+                }))
+              }
+              className={inputClassName}
+              placeholder="e.g. Mike Johnson"
+            />
+          </label>
+
+          <label className={labelClassName}>
+            Full Name{" "}
+            <span className="font-normal text-gray-500">(optional)</span>
+            <input
+              type="text"
+              value={form.fullName}
+              onChange={(event) =>
+                setForm((prev) => ({ ...prev, fullName: event.target.value }))
+              }
+              className={inputClassName}
+              placeholder="Legal or display name"
+            />
+          </label>
+        </div>
+
+        <p className="mt-4 text-sm text-gray-500">
+          The server name must match job assignments exactly so the process
+          server sees their jobs on Mobile.
+        </p>
+
+        <button
+          type="submit"
+          disabled={isSubmitting}
+          className="mt-6 rounded-lg bg-blue-600 px-6 py-3 text-sm font-semibold text-white transition hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-60"
         >
-          <div className="grid gap-5 md:grid-cols-2">
-            <label className={labelClassName}>
-              Email
-              <input
-                type="email"
-                required
-                value={form.email}
-                onChange={(event) =>
-                  setForm((prev) => ({ ...prev, email: event.target.value }))
-                }
-                className={inputClassName}
-                placeholder="server@example.com"
-                autoComplete="off"
-              />
-            </label>
-
-            <label className={labelClassName}>
-              Password
-              <input
-                type="password"
-                required
-                minLength={6}
-                value={form.password}
-                onChange={(event) =>
-                  setForm((prev) => ({ ...prev, password: event.target.value }))
-                }
-                className={inputClassName}
-                placeholder="At least 6 characters"
-                autoComplete="new-password"
-              />
-            </label>
-
-            <label className={labelClassName}>
-              Server Name
-              <input
-                type="text"
-                required
-                value={form.serverName}
-                onChange={(event) =>
-                  setForm((prev) => ({
-                    ...prev,
-                    serverName: event.target.value,
-                  }))
-                }
-                className={inputClassName}
-                placeholder="e.g. Mike Johnson"
-              />
-            </label>
-
-            <label className={labelClassName}>
-              Full Name{" "}
-              <span className="font-normal text-gray-500">(optional)</span>
-              <input
-                type="text"
-                value={form.fullName}
-                onChange={(event) =>
-                  setForm((prev) => ({ ...prev, fullName: event.target.value }))
-                }
-                className={inputClassName}
-                placeholder="Legal or display name"
-              />
-            </label>
-          </div>
-
-          <p className="mt-4 text-sm text-gray-500">
-            The server name must match job assignments exactly so the process
-            server sees their jobs on Mobile.
-          </p>
-
-          <button
-            type="submit"
-            disabled={isSubmitting}
-            className="mt-6 rounded-lg bg-blue-600 px-6 py-3 text-sm font-semibold text-white transition hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-60"
-          >
-            {isSubmitting ? "Creating user..." : "Create User"}
-          </button>
-        </form>
-      ) : null}
+          {isSubmitting ? "Creating user..." : "Create User"}
+        </button>
+      </form>
     </section>
   );
 }

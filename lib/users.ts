@@ -1,4 +1,5 @@
 import { getAccessToken } from "@/lib/auth-client";
+import { ROLE_PROTECTION_ENABLED } from "@/lib/role-protection";
 import type {
   CreateUserProfileInput,
   CreateUserProfileResult,
@@ -15,10 +16,20 @@ export type FetchUsersResult =
       error: string;
     };
 
+function buildAdminHeaders(token: string | null): HeadersInit {
+  const headers: HeadersInit = {};
+
+  if (token) {
+    headers.Authorization = `Bearer ${token}`;
+  }
+
+  return headers;
+}
+
 export async function fetchAllUserProfiles(): Promise<FetchUsersResult> {
   const token = await getAccessToken();
 
-  if (!token) {
+  if (ROLE_PROTECTION_ENABLED && !token) {
     return {
       success: false,
       error: "You must sign in as an admin to view users.",
@@ -26,9 +37,7 @@ export async function fetchAllUserProfiles(): Promise<FetchUsersResult> {
   }
 
   const response = await fetch("/api/admin/users", {
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
+    headers: buildAdminHeaders(token),
   });
 
   const data = (await response.json()) as
@@ -43,7 +52,7 @@ export async function createUserProfile(
 ): Promise<CreateUserProfileResult> {
   const token = await getAccessToken();
 
-  if (!token) {
+  if (ROLE_PROTECTION_ENABLED && !token) {
     return {
       success: false,
       error: "You must sign in as an admin to create users.",
@@ -54,7 +63,7 @@ export async function createUserProfile(
     method: "POST",
     headers: {
       "Content-Type": "application/json",
-      Authorization: `Bearer ${token}`,
+      ...buildAdminHeaders(token),
     },
     body: JSON.stringify({
       email: input.email,

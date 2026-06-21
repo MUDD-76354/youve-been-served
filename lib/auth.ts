@@ -1,3 +1,7 @@
+// TODO: Re-implement proper User/Admin role separation with working login
+
+import { normalizeRole } from "@/lib/role";
+import { ROLE_PROTECTION_ENABLED } from "@/lib/role-protection";
 import { createClient, type SupabaseClient, type User } from "@supabase/supabase-js";
 import type { NextRequest } from "next/server";
 
@@ -31,7 +35,7 @@ async function isAdminUser(
 ): Promise<boolean> {
   const metadataRole = user.app_metadata?.role ?? user.user_metadata?.role;
 
-  if (metadataRole === "admin") {
+  if (normalizeRole(metadataRole) === "admin") {
     return true;
   }
 
@@ -42,12 +46,23 @@ async function isAdminUser(
     .maybeSingle();
 
   const profileRole = (data as { role: string } | null)?.role;
-  return profileRole === "admin";
+  return normalizeRole(profileRole) === "admin";
 }
 
 export async function requireAdminUser(
   request: NextRequest,
 ): Promise<AdminAuthResult> {
+  // TODO: Re-enable proper authentication and role protection once the login flow is fixed.
+  if (!ROLE_PROTECTION_ENABLED) {
+    return {
+      ok: true,
+      user: {
+        id: "auth-protection-disabled",
+        email: "auth-protection-disabled@local",
+      } as User,
+    };
+  }
+
   const token = getBearerToken(request);
 
   if (!token) {
