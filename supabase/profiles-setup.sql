@@ -6,7 +6,7 @@ create table if not exists public.profiles (
   email text not null,
   server_name text not null,
   full_name text,
-  role text not null default 'process_server',
+  role text not null default 'user',
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now(),
   constraint profiles_server_name_unique unique (server_name)

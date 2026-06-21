@@ -65,8 +65,9 @@ export default function CreateUserForm() {
       <div>
         <h2 className="text-xl font-semibold text-gray-900">Create User</h2>
         <p className="mt-1 text-sm text-gray-600">
-          Create a process server account with login credentials and a server
-          name used for job assignment.
+          Create a process server (field user) account with login credentials
+          and a server name used for job assignment. New accounts are always
+          assigned the <span className="font-medium">user</span> role.
         </p>
       </div>
 

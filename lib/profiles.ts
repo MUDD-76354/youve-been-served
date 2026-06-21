@@ -1,3 +1,6 @@
+/** Role assigned to process servers created by admins via Create User. */
+export const PROCESS_SERVER_ROLE = "user" as const;
+
 export type UserProfile = {
   id: string;
   email: string;
@@ -24,6 +27,7 @@ export type CreateUserProfileResult =
         email: string;
         serverName: string;
         fullName: string | null;
+        role: typeof PROCESS_SERVER_ROLE;
       };
     }
   | {

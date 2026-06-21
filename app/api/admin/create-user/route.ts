@@ -1,4 +1,5 @@
 import { requireAdminUser } from "@/lib/auth";
+import { PROCESS_SERVER_ROLE } from "@/lib/profiles";
 import { getSupabaseAdminClient } from "@/lib/supabase-admin";
 import { NextRequest, NextResponse } from "next/server";
 
@@ -10,6 +11,7 @@ type CreateUserBody = {
   password?: unknown;
   serverName?: unknown;
   fullName?: unknown;
+  role?: unknown;
 };
 
 function parseCreateUserBody(body: CreateUserBody): {
@@ -18,6 +20,13 @@ function parseCreateUserBody(body: CreateUserBody): {
   serverName: string;
   fullName: string | null;
 } | { error: string } {
+  if (body.role !== undefined) {
+    return {
+      error:
+        "Role cannot be specified when creating a user. New process servers are always assigned the user role.",
+    };
+  }
+
   if (
     typeof body.email !== "string" ||
     typeof body.password !== "string" ||
@@ -98,7 +107,7 @@ export async function POST(request: NextRequest) {
       password: parsed.password,
       email_confirm: true,
       user_metadata: {
-        role: "process_server",
+        role: PROCESS_SERVER_ROLE,
         server_name: parsed.serverName,
         full_name: parsed.fullName,
       },
@@ -123,7 +132,7 @@ export async function POST(request: NextRequest) {
       email: parsed.email,
       server_name: parsed.serverName,
       full_name: parsed.fullName,
-      role: "process_server",
+      role: PROCESS_SERVER_ROLE,
     });
 
     if (profileError) {
@@ -149,6 +158,7 @@ export async function POST(request: NextRequest) {
           email: data.user.email,
           serverName: parsed.serverName,
           fullName: parsed.fullName,
+          role: PROCESS_SERVER_ROLE,
         },
       },
       { status: 201 },
