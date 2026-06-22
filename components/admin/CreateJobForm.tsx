@@ -213,7 +213,7 @@ export default function CreateJobForm({ onCreateJob }: CreateJobFormProps) {
                 }))
               }
               className={inputClassName}
-              placeholder="Internal notes for this job"
+              placeholder="Dispatcher notes for the process server"
             />
           </label>
         </div>

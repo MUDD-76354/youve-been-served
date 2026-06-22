@@ -1,4 +1,5 @@
 import LoadingSpinner from "@/components/mobile/LoadingSpinner";
+import JobNotesBlock from "@/components/mobile/JobNotesBlock";
 import { statusStyles } from "@/components/mobile/constants";
 import { Job } from "@/lib/admin";
 import { AttemptType } from "@/lib/attempts";
@@ -235,6 +236,10 @@ export default function AttemptConfirmation({
 
           <div className="border-t border-gray-100 pt-2">
             <ReviewField label="Process Server" value={serverName} />
+          </div>
+
+          <div className="border-t border-gray-100 pt-4">
+            <JobNotesBlock notes={job.notes} />
           </div>
         </div>
       </ReviewSection>

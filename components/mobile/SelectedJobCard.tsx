@@ -1,3 +1,4 @@
+import JobNotesBlock from "@/components/mobile/JobNotesBlock";
 import { statusStyles } from "@/components/mobile/constants";
 import { Job } from "@/lib/admin";
 
@@ -41,6 +42,10 @@ export default function SelectedJobCard({ job }: SelectedJobCardProps) {
           <p className="mt-1.5 text-base font-medium leading-relaxed text-gray-800">
             {job.address}
           </p>
+        </div>
+
+        <div className="mt-4">
+          <JobNotesBlock notes={job.notes} />
         </div>
       </div>
     </section>

@@ -202,7 +202,7 @@ export default function EditJobForm({ job, onSave, onCancel }: EditJobFormProps)
                   }))
                 }
                 className={inputClassName}
-                placeholder="Internal notes for this job"
+                placeholder="Dispatcher notes for the process server"
               />
             </label>
           </div>

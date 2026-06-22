@@ -1,4 +1,5 @@
 import { emptyStatePresets, EmptyStateFromPreset } from "@/components/EmptyState";
+import JobNotesBlock from "@/components/mobile/JobNotesBlock";
 import { statusStyles } from "@/components/mobile/constants";
 import { Job } from "@/lib/admin";
 
@@ -61,6 +62,7 @@ export default function JobList({
                 <p className="mt-2 text-sm leading-relaxed text-gray-600">
                   {job.address}
                 </p>
+                <JobNotesBlock notes={job.notes} variant="compact" />
                 <p className="mt-3 line-clamp-2 text-xs text-gray-500">
                   {job.documentsToServe}
                 </p>
