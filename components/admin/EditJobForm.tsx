@@ -22,6 +22,7 @@ function jobToForm(job: Job): EditJobInput {
     defendantName: job.defendantName,
     address: job.address,
     documentsToServe: job.documentsToServe,
+    notes: job.notes,
     processServer: job.processServer,
     status: job.status,
   };
@@ -183,6 +184,25 @@ export default function EditJobForm({ job, onSave, onCancel }: EditJobFormProps)
                   }))
                 }
                 className={inputClassName}
+              />
+            </label>
+
+            <label className={`${labelClassName} md:col-span-2`}>
+              Notes
+              <span className="ml-1 text-xs font-normal text-gray-500">
+                (optional)
+              </span>
+              <textarea
+                rows={3}
+                value={form.notes}
+                onChange={(event) =>
+                  setForm((prev) => ({
+                    ...prev,
+                    notes: event.target.value,
+                  }))
+                }
+                className={inputClassName}
+                placeholder="Internal notes for this job"
               />
             </label>
           </div>

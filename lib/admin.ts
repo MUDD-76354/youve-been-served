@@ -20,6 +20,7 @@ export type Job = {
   defendantName: string;
   address: string;
   documentsToServe: string;
+  notes: string;
   processServer: string;
   status: JobStatus;
   createdAt: string;
@@ -31,6 +32,7 @@ export type NewJobInput = {
   defendantName: string;
   address: string;
   documentsToServe: string;
+  notes: string;
   processServer: string;
 };
 

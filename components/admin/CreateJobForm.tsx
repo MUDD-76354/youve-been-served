@@ -16,6 +16,7 @@ const initialForm: NewJobInput = {
   defendantName: "",
   address: "",
   documentsToServe: "",
+  notes: "",
   processServer: "",
 };
 
@@ -194,6 +195,25 @@ export default function CreateJobForm({ onCreateJob }: CreateJobFormProps) {
               }
               className={inputClassName}
               placeholder="List documents to be served"
+            />
+          </label>
+
+          <label className={`${labelClassName} md:col-span-2`}>
+            Notes
+            <span className="ml-1 text-xs font-normal text-gray-500">
+              (optional)
+            </span>
+            <textarea
+              rows={3}
+              value={form.notes}
+              onChange={(event) =>
+                setForm((prev) => ({
+                  ...prev,
+                  notes: event.target.value,
+                }))
+              }
+              className={inputClassName}
+              placeholder="Internal notes for this job"
             />
           </label>
         </div>

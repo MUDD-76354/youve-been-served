@@ -7,6 +7,7 @@ type JobRow = {
   defendant_name: string;
   address: string;
   documents: string;
+  notes: string | null;
   assigned_to: string | null;
   status: JobStatus;
   created_at: string;
@@ -19,6 +20,7 @@ function mapJobRowToJob(row: JobRow): Job {
     defendantName: row.defendant_name,
     address: row.address,
     documentsToServe: row.documents,
+    notes: row.notes ?? "",
     processServer: row.assigned_to ?? "",
     status: row.status,
     createdAt: row.created_at,
@@ -30,7 +32,7 @@ export async function fetchJobs(): Promise<Job[]> {
   const { data, error } = await supabase
     .from("jobs")
     .select(
-      "id, client, defendant_name, address, documents, assigned_to, status, created_at",
+      "id, client, defendant_name, address, documents, notes, assigned_to, status, created_at",
     )
     .order("created_at", { ascending: false });
 
@@ -68,11 +70,12 @@ export async function createJob(input: NewJobInput): Promise<Job> {
       defendant_name: input.defendantName,
       address: input.address,
       documents: input.documentsToServe,
+      notes: input.notes,
       assigned_to: input.processServer,
       status: "Assigned",
     })
     .select(
-      "id, client, defendant_name, address, documents, assigned_to, status, created_at",
+      "id, client, defendant_name, address, documents, notes, assigned_to, status, created_at",
     )
     .single();
 
@@ -94,12 +97,13 @@ export async function updateJob(
       defendant_name: input.defendantName,
       address: input.address,
       documents: input.documentsToServe,
+      notes: input.notes,
       assigned_to: input.processServer,
       status: input.status,
     })
     .eq("id", jobId)
     .select(
-      "id, client, defendant_name, address, documents, assigned_to, status, created_at",
+      "id, client, defendant_name, address, documents, notes, assigned_to, status, created_at",
     )
     .single();
 
@@ -119,7 +123,7 @@ export async function updateJobStatus(
     .update({ status })
     .eq("id", jobId)
     .select(
-      "id, client, defendant_name, address, documents, assigned_to, status, created_at",
+      "id, client, defendant_name, address, documents, notes, assigned_to, status, created_at",
     )
     .single();
 
