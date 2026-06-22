@@ -168,8 +168,8 @@ export default function AttemptForm({
 
       const message =
         attemptType === "success"
-          ? formatSuccessServeMessage(successForm)
-          : formatFailedAttemptMessage(failedForm);
+          ? formatSuccessServeMessage(successForm, job.address)
+          : formatFailedAttemptMessage(failedForm, job.defendantName);
 
       openSmsApp(PROCESS_SERVERS_GROUP_NUMBERS, message);
       setSubmitPhase("idle");

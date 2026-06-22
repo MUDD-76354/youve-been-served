@@ -36,26 +36,57 @@ function appendField(lines: string[], label: string, value: string) {
   }
 }
 
-export function formatSuccessServeMessage(data: SuccessFormData): string {
-  const lines = ["SUCCESSFUL SERVE", "Bohn & Associates", ""];
+type AttemptSmsMessage = {
+  name: string;
+  typeOfService: string;
+  result: "Successful" | "Failed";
+  address: string;
+  mileage?: string;
+  notes?: string;
+  dateTime?: string;
+};
 
-  appendField(lines, "Type of Serve", data.serveType);
-  appendField(lines, "Name", data.personServed);
-  appendField(lines, "Mileage", data.mileage);
-  appendField(lines, "Notes", data.notes);
+function formatAttemptSmsMessage(data: AttemptSmsMessage): string {
+  const lines = ["Bohn & Associates", ""];
+
+  appendField(lines, "Name", data.name);
+  appendField(lines, "Type of Service", data.typeOfService);
+  appendField(lines, "Result", data.result);
+  appendField(lines, "Address", data.address);
+  appendField(lines, "Date & Time", formatDateTime(data.dateTime ?? ""));
+  appendField(lines, "Mileage", data.mileage ?? "");
+  appendField(lines, "Notes", data.notes ?? "");
 
   return lines.join("\n");
 }
 
-export function formatFailedAttemptMessage(data: FailedFormData): string {
-  const lines = ["FAILED ATTEMPT", "Bohn & Associates", ""];
+export function formatSuccessServeMessage(
+  data: SuccessFormData,
+  address: string,
+): string {
+  return formatAttemptSmsMessage({
+    name: data.personServed,
+    typeOfService: data.serveType,
+    result: "Successful",
+    address,
+    mileage: data.mileage,
+    notes: data.notes,
+  });
+}
 
-  appendField(lines, "Address", data.address);
-  appendField(lines, "Date & Time", formatDateTime(data.dateTime));
-  appendField(lines, "Mileage", data.mileage);
-  appendField(lines, "Notes", data.notes);
-
-  return lines.join("\n");
+export function formatFailedAttemptMessage(
+  data: FailedFormData,
+  defendantName: string,
+): string {
+  return formatAttemptSmsMessage({
+    name: defendantName,
+    typeOfService: "Process Service",
+    result: "Failed",
+    address: data.address,
+    dateTime: data.dateTime,
+    mileage: data.mileage,
+    notes: data.notes,
+  });
 }
 
 export function buildSmsUrl(recipients: string[], body: string): string {
