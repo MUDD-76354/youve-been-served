@@ -15,7 +15,6 @@ type SuccessSummary = {
 };
 
 type FailedSummary = {
-  address: string;
   dateTime: string;
   mileage: string;
   notes: string;
@@ -25,6 +24,7 @@ type AttemptConfirmationProps = {
   job: Job;
   serverName: string;
   attemptType: AttemptType;
+  attemptAddress: string;
   successForm: SuccessSummary;
   failedForm: FailedSummary;
   photoPreviewUrl: string | null;
@@ -187,6 +187,7 @@ export default function AttemptConfirmation({
   job,
   serverName,
   attemptType,
+  attemptAddress,
   successForm,
   failedForm,
   photoPreviewUrl,
@@ -256,17 +257,17 @@ export default function AttemptConfirmation({
             {isSuccess ? "Successful Serve" : "Failed Attempt"}
           </div>
 
-          {isSuccess ? (
-            <ReviewField label="Type of Serve" value={successForm.serveType} />
-          ) : (
-            <div className="space-y-1 border-t border-gray-100 pt-4">
-              <ReviewField label="Attempt Address" value={failedForm.address} />
+          <div className="space-y-1 border-t border-gray-100 pt-4">
+            <ReviewField label="Attempt Address" value={attemptAddress} />
+            {isSuccess ? (
+              <ReviewField label="Type of Serve" value={successForm.serveType} />
+            ) : (
               <ReviewField
                 label="Date & Time"
                 value={formatDateTime(failedForm.dateTime)}
               />
-            </div>
-          )}
+            )}
+          </div>
         </div>
       </ReviewSection>
 

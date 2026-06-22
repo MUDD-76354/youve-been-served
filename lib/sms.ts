@@ -1,6 +1,7 @@
 type SuccessFormData = {
   serveType: string;
   personServed: string;
+  address: string;
   mileage: string;
   notes: string;
 };
@@ -60,15 +61,12 @@ function formatAttemptSmsMessage(data: AttemptSmsMessage): string {
   return lines.join("\n");
 }
 
-export function formatSuccessServeMessage(
-  data: SuccessFormData,
-  address: string,
-): string {
+export function formatSuccessServeMessage(data: SuccessFormData): string {
   return formatAttemptSmsMessage({
     name: data.personServed,
     typeOfService: data.serveType,
     result: "Successful",
-    address,
+    address: data.address,
     mileage: data.mileage,
     notes: data.notes,
   });

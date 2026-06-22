@@ -67,12 +67,15 @@ export default function AttemptForm({
     resolvedDraft.attemptType,
   );
   const [successForm, setSuccessForm] = useState(resolvedDraft.successForm);
+  const [attemptAddress, setAttemptAddress] = useState(
+    resolvedDraft.attemptAddress,
+  );
   const [failedForm, setFailedForm] = useState(resolvedDraft.failedForm);
   const [photoFile, setPhotoFile] = useState<File | null>(
     resolvedDraft.photoFile,
   );
-  const [failedAddressMatchesJob, setFailedAddressMatchesJob] = useState(
-    resolvedDraft.failedAddressMatchesJob,
+  const [attemptAddressMatchesJob, setAttemptAddressMatchesJob] = useState(
+    resolvedDraft.attemptAddressMatchesJob,
   );
   const [photoPreviewUrl, setPhotoPreviewUrl] = useState<string | null>(null);
   const [submitPhase, setSubmitPhase] = useState<SubmitPhase>("idle");
@@ -86,12 +89,13 @@ export default function AttemptForm({
   function buildDraft(): AttemptDraft {
     return {
       attemptType,
+      attemptAddress,
       successForm,
       failedForm,
       photoFile,
       flowStep: step === "success" ? "form" : step,
       sourceJobId: job.id,
-      failedAddressMatchesJob,
+      attemptAddressMatchesJob,
     };
   }
 
@@ -102,23 +106,25 @@ export default function AttemptForm({
   function resetForAnotherAttempt() {
     const freshDraft = createEmptyAttemptDraft(job);
     setAttemptType(freshDraft.attemptType);
+    setAttemptAddress(freshDraft.attemptAddress);
     setSuccessForm(freshDraft.successForm);
     setFailedForm(freshDraft.failedForm);
     setPhotoFile(freshDraft.photoFile);
-    setFailedAddressMatchesJob(freshDraft.failedAddressMatchesJob);
+    setAttemptAddressMatchesJob(freshDraft.attemptAddressMatchesJob);
     setSubmitPhase("idle");
     setError(null);
     updateStep("form");
   }
 
+  function updateAttemptAddress(value: string) {
+    setAttemptAddress(value);
+    setAttemptAddressMatchesJob(value === job.address);
+  }
+
   function updateFailedForm(
     updater: (prev: AttemptDraft["failedForm"]) => AttemptDraft["failedForm"],
   ) {
-    setFailedForm((prev) => {
-      const next = updater(prev);
-      setFailedAddressMatchesJob(next.address === job.address);
-      return next;
-    });
+    setFailedForm((prev) => updater(prev));
   }
 
   useEffect(() => {
@@ -162,14 +168,19 @@ export default function AttemptForm({
         job.id,
         serverName.trim(),
         attemptType,
-        attemptType === "success" ? successForm : failedForm,
+        attemptType === "success"
+          ? { ...successForm, address: attemptAddress }
+          : { ...failedForm, address: attemptAddress },
         photoUrl,
       );
 
       const message =
         attemptType === "success"
-          ? formatSuccessServeMessage(successForm, job.address)
-          : formatFailedAttemptMessage(failedForm, job.defendantName);
+          ? formatSuccessServeMessage({ ...successForm, address: attemptAddress })
+          : formatFailedAttemptMessage(
+              { ...failedForm, address: attemptAddress },
+              job.defendantName,
+            );
 
       openSmsApp(PROCESS_SERVERS_GROUP_NUMBERS, message);
       setSubmitPhase("idle");
@@ -222,6 +233,7 @@ export default function AttemptForm({
           job={job}
           serverName={serverName}
           attemptType={attemptType}
+          attemptAddress={attemptAddress}
           successForm={successForm}
           failedForm={failedForm}
           photoPreviewUrl={photoPreviewUrl}
@@ -281,6 +293,19 @@ export default function AttemptForm({
       ) : null}
 
       <form onSubmit={handleSend} className="flex flex-1 flex-col gap-5">
+        <label className={mobileLabelClassName}>
+          Address
+          <input
+            type="text"
+            name="attemptAddress"
+            required
+            value={attemptAddress}
+            onChange={(event) => updateAttemptAddress(event.target.value)}
+            className={mobileInputClassName}
+            placeholder="Service or attempt address"
+          />
+        </label>
+
         {attemptType === "success" ? (
           <div key="success-fields" className="flex flex-col gap-5">
             <label className={mobileLabelClassName}>
@@ -375,24 +400,6 @@ export default function AttemptForm({
           </div>
         ) : (
           <div key="failed-fields" className="flex flex-col gap-5">
-            <label className={mobileLabelClassName}>
-              Address
-              <input
-                type="text"
-                name="address"
-                required
-                value={failedForm.address}
-                onChange={(event) =>
-                  updateFailedForm((prev) => ({
-                    ...prev,
-                    address: event.target.value,
-                  }))
-                }
-                className={mobileInputClassName}
-                placeholder="Street address"
-              />
-            </label>
-
             <label className={mobileLabelClassName}>
               Date &amp; Time
               <input

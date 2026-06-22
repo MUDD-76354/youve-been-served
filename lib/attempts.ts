@@ -27,6 +27,7 @@ export type AttemptFilters = {
 export type SuccessAttemptInput = {
   serveType: string;
   personServed: string;
+  address: string;
   mileage: string;
   notes: string;
 };
@@ -314,6 +315,7 @@ export async function saveAttempt(
             attempt_type: "Successful Serve",
             type_of_serve: successData.serveType,
             person_served_name: successData.personServed,
+            address: successData.address,
             mileage: parseMileage(successData.mileage),
             notes: successData.notes || null,
           },

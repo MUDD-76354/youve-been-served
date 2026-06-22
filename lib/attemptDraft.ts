@@ -11,7 +11,6 @@ export type SuccessFormDraft = {
 };
 
 export type FailedFormDraft = {
-  address: string;
   dateTime: string;
   mileage: string;
   notes: string;
@@ -19,12 +18,13 @@ export type FailedFormDraft = {
 
 export type AttemptDraft = {
   attemptType: AttemptType;
+  attemptAddress: string;
   successForm: SuccessFormDraft;
   failedForm: FailedFormDraft;
   photoFile: File | null;
   flowStep: Extract<AttemptFlowStep, "form" | "confirm">;
   sourceJobId: string | null;
-  failedAddressMatchesJob: boolean;
+  attemptAddressMatchesJob: boolean;
 };
 
 const emptySuccessForm: SuccessFormDraft = {
@@ -37,9 +37,9 @@ const emptySuccessForm: SuccessFormDraft = {
 export function createEmptyAttemptDraft(job?: Job): AttemptDraft {
   return {
     attemptType: "success",
+    attemptAddress: job?.address ?? "",
     successForm: emptySuccessForm,
     failedForm: {
-      address: job?.address ?? "",
       dateTime: "",
       mileage: "",
       notes: "",
@@ -47,25 +47,21 @@ export function createEmptyAttemptDraft(job?: Job): AttemptDraft {
     photoFile: null,
     flowStep: "form",
     sourceJobId: job?.id ?? null,
-    failedAddressMatchesJob: Boolean(job),
+    attemptAddressMatchesJob: Boolean(job),
   };
 }
 
 export function applyDraftToJob(draft: AttemptDraft, job: Job): AttemptDraft {
   const shouldRefreshAddress =
-    draft.attemptType === "failed" &&
-    draft.failedAddressMatchesJob &&
-    draft.sourceJobId !== job.id;
+    draft.attemptAddressMatchesJob && draft.sourceJobId !== job.id;
 
   return {
     ...draft,
     sourceJobId: job.id,
-    failedAddressMatchesJob: shouldRefreshAddress
+    attemptAddressMatchesJob: shouldRefreshAddress
       ? true
-      : draft.failedAddressMatchesJob,
-    failedForm: shouldRefreshAddress
-      ? { ...draft.failedForm, address: job.address }
-      : draft.failedForm,
+      : draft.attemptAddressMatchesJob,
+    attemptAddress: shouldRefreshAddress ? job.address : draft.attemptAddress,
   };
 }
 
@@ -76,10 +72,16 @@ export function draftHasEnteredData(draft: AttemptDraft): boolean {
   const failedEntered =
     draft.failedForm.dateTime.trim().length > 0 ||
     draft.failedForm.mileage.trim().length > 0 ||
-    draft.failedForm.notes.trim().length > 0 ||
-    (draft.failedForm.address.trim().length > 0 &&
-      !draft.failedAddressMatchesJob);
+    draft.failedForm.notes.trim().length > 0;
+  const addressChanged =
+    draft.attemptAddress.trim().length > 0 && !draft.attemptAddressMatchesJob;
   const hasPhoto = draft.photoFile !== null;
 
-  return successEntered || failedEntered || hasPhoto || draft.flowStep === "confirm";
+  return (
+    successEntered ||
+    failedEntered ||
+    addressChanged ||
+    hasPhoto ||
+    draft.flowStep === "confirm"
+  );
 }
