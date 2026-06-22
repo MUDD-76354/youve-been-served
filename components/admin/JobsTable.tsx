@@ -112,6 +112,7 @@ export default function JobsTable({
             <table className="min-w-full divide-y divide-gray-200 text-left text-sm">
               <thead className="bg-gray-50">
                 <tr>
+                  <th className="px-4 py-3 font-semibold text-gray-700">Client</th>
                   <th className="px-4 py-3 font-semibold text-gray-700">Subject Name</th>
                   <th className="px-4 py-3 font-semibold text-gray-700">Address</th>
                   <th className="px-4 py-3 font-semibold text-gray-700">Documents</th>
@@ -128,6 +129,9 @@ export default function JobsTable({
 
                   return (
                     <tr key={job.id} className="align-top hover:bg-gray-50">
+                      <td className="px-4 py-4 text-gray-600">
+                        {job.client || "—"}
+                      </td>
                       <td className="px-4 py-4 font-medium text-gray-900">
                         {job.defendantName}
                       </td>

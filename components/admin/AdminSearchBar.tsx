@@ -1,7 +1,7 @@
 "use client";
 
 export const ADMIN_SEARCH_PLACEHOLDER =
-  "Search by subject name, address, or process server...";
+  "Search by client, subject name, address, or process server...";
 
 type AdminSearchBarProps = {
   value: string;

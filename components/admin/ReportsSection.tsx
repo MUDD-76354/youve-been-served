@@ -16,6 +16,7 @@ import {
   SERVE_TYPES,
 } from "@/lib/attempts";
 import { getErrorMessage } from "@/lib/errors";
+import { fetchClientNameSuggestions } from "@/lib/jobs";
 import { exportAttemptsToCsv, exportAttemptsToPdf } from "@/lib/reports";
 import { filterAttemptsBySearch, normalizeSearchQuery } from "@/lib/search";
 import { FormEvent, useCallback, useEffect, useMemo, useState } from "react";
@@ -24,6 +25,7 @@ const emptyFilters: AttemptFilters = {
   startDate: "",
   endDate: "",
   processServerName: "",
+  client: "",
   outcome: "",
   typeOfServe: "",
 };
@@ -40,6 +42,7 @@ function toQueryFilters(filters: AttemptFilters): AttemptFilters {
     startDate: filters.startDate || undefined,
     endDate: filters.endDate || undefined,
     processServerName: filters.processServerName || undefined,
+    client: filters.client || undefined,
     outcome: filters.outcome || undefined,
     typeOfServe: filters.typeOfServe || undefined,
   };
@@ -51,6 +54,7 @@ export default function ReportsSection() {
   const [appliedFilters, setAppliedFilters] = useState<AttemptFilters>({});
   const [attempts, setAttempts] = useState<Attempt[]>([]);
   const [serverNames, setServerNames] = useState<string[]>([]);
+  const [clientNames, setClientNames] = useState<string[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
@@ -105,6 +109,9 @@ export default function ReportsSection() {
     void fetchProcessServerNames()
       .then(setServerNames)
       .catch(() => setServerNames([]));
+    void fetchClientNameSuggestions()
+      .then(setClientNames)
+      .catch(() => setClientNames([]));
   }, [loadReport]);
 
   function handleFilterChange(
@@ -201,6 +208,25 @@ export default function ReportsSection() {
                 </option>
               ))}
             </select>
+          </label>
+
+          <label className="block text-sm">
+            <span className="font-semibold text-gray-700">Client</span>
+            <input
+              type="text"
+              list="reports-client-suggestions"
+              value={filters.client ?? ""}
+              onChange={(event) =>
+                handleFilterChange("client", event.target.value)
+              }
+              placeholder="All clients"
+              className="mt-1.5 w-full rounded-lg border border-gray-300 px-3 py-2 text-sm outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20"
+            />
+            <datalist id="reports-client-suggestions">
+              {clientNames.map((name) => (
+                <option key={name} value={name} />
+              ))}
+            </datalist>
           </label>
 
           <label className="block text-sm">

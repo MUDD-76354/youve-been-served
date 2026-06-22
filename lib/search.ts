@@ -27,6 +27,7 @@ export function filterJobsBySearch(jobs: Job[], query: string): Job[] {
 
   return jobs.filter((job) =>
     matchesSearchQuery(query, [
+      job.client,
       job.defendantName,
       job.address,
       job.processServer,

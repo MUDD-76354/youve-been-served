@@ -115,6 +115,10 @@ function formatFilterSummary(filters: AttemptFilters): string[] {
     parts.push(`Server: ${filters.processServerName}`);
   }
 
+  if (filters.client) {
+    parts.push(`Client: ${filters.client}`);
+  }
+
   if (filters.outcome) {
     parts.push(`Outcome: ${filters.outcome}`);
   }

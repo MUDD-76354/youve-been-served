@@ -19,6 +19,7 @@ export type AttemptFilters = {
   startDate?: string;
   endDate?: string;
   processServerName?: string;
+  client?: string;
   outcome?: string;
   typeOfServe?: string;
 };
@@ -146,14 +147,63 @@ function applyAttemptFilters(query: any, filters?: AttemptFilters) {
   return filtered;
 }
 
+async function fetchJobIdsForClientFilter(
+  client: string,
+): Promise<string[] | null> {
+  const trimmedClient = client.trim();
+
+  if (!trimmedClient) {
+    return null;
+  }
+
+  const { data, error } = await supabase
+    .from("jobs")
+    .select("id, client");
+
+  if (error) {
+    throw new Error(error.message);
+  }
+
+  const normalizedClient = trimmedClient.toLowerCase();
+
+  return (
+    (data as Array<{ id: string; client: string | null }> | null) ?? []
+  )
+    .filter((job) =>
+      job.client?.toLowerCase().includes(normalizedClient),
+    )
+    .map((job) => job.id);
+}
+
+function applyClientJobFilter<T>(query: T, jobIds: string[] | null): T {
+  if (!jobIds) {
+    return query;
+  }
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  return (query as any).in("job_id", jobIds);
+}
+
 async function fetchAttemptRows(filters?: AttemptFilters): Promise<AttemptRow[]> {
-  const withPhotoResult = await applyAttemptFilters(
-    supabase
-      .from("attempts")
-      .select(`${attemptSelectBase}, photo_url`)
-      .order("created_at", { ascending: false }),
-    filters,
+  const clientJobIds = filters?.client
+    ? await fetchJobIdsForClientFilter(filters.client)
+    : null;
+
+  if (clientJobIds && clientJobIds.length === 0) {
+    return [];
+  }
+
+  const withPhotoQuery = applyClientJobFilter(
+    applyAttemptFilters(
+      supabase
+        .from("attempts")
+        .select(`${attemptSelectBase}, photo_url`)
+        .order("created_at", { ascending: false }),
+      filters,
+    ),
+    clientJobIds,
   );
+  const withPhotoResult = await withPhotoQuery;
 
   if (!withPhotoResult.error) {
     return (withPhotoResult.data as AttemptRow[]) ?? [];
@@ -163,13 +213,17 @@ async function fetchAttemptRows(filters?: AttemptFilters): Promise<AttemptRow[]>
     throw new Error(withPhotoResult.error.message);
   }
 
-  const withoutPhotoResult = await applyAttemptFilters(
-    supabase
-      .from("attempts")
-      .select(attemptSelectBase)
-      .order("created_at", { ascending: false }),
-    filters,
+  const withoutPhotoQuery = applyClientJobFilter(
+    applyAttemptFilters(
+      supabase
+        .from("attempts")
+        .select(attemptSelectBase)
+        .order("created_at", { ascending: false }),
+      filters,
+    ),
+    clientJobIds,
   );
+  const withoutPhotoResult = await withoutPhotoQuery;
 
   if (withoutPhotoResult.error) {
     throw new Error(withoutPhotoResult.error.message);
