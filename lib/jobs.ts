@@ -41,6 +41,25 @@ export async function fetchJobs(): Promise<Job[]> {
   return (data as JobRow[]).map(mapJobRowToJob);
 }
 
+export async function fetchClientNameSuggestions(): Promise<string[]> {
+  const { data, error } = await supabase.from("jobs").select("client");
+
+  if (error) {
+    throw new Error(error.message);
+  }
+
+  const names = new Set<string>();
+
+  for (const row of data ?? []) {
+    const client = (row as Pick<JobRow, "client">).client?.trim();
+    if (client) {
+      names.add(client);
+    }
+  }
+
+  return Array.from(names).sort((a, b) => a.localeCompare(b));
+}
+
 export async function createJob(input: NewJobInput): Promise<Job> {
   const { data, error } = await supabase
     .from("jobs")

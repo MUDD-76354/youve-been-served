@@ -3,7 +3,9 @@
 import { useToast } from "@/components/ToastProvider";
 import { NewJobInput } from "@/lib/admin";
 import { getErrorMessage } from "@/lib/errors";
-import { FormEvent, useState } from "react";
+import { fetchClientNameSuggestions } from "@/lib/jobs";
+import { fetchProcessServerNameSuggestions } from "@/lib/profile-client";
+import { FormEvent, useCallback, useEffect, useState } from "react";
 
 type CreateJobFormProps = {
   onCreateJob: (job: NewJobInput) => Promise<void>;
@@ -27,6 +29,30 @@ export default function CreateJobForm({ onCreateJob }: CreateJobFormProps) {
   const [form, setForm] = useState(initialForm);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [clientSuggestions, setClientSuggestions] = useState<string[]>([]);
+  const [serverNameSuggestions, setServerNameSuggestions] = useState<string[]>(
+    [],
+  );
+
+  const loadSuggestions = useCallback(async () => {
+    try {
+      const [clients, serverNames] = await Promise.all([
+        fetchClientNameSuggestions(),
+        fetchProcessServerNameSuggestions(),
+      ]);
+      setClientSuggestions(clients);
+      setServerNameSuggestions(serverNames);
+    } catch (err) {
+      showError(
+        getErrorMessage(err, "Failed to load form suggestions."),
+        "Could not load suggestions",
+      );
+    }
+  }, [showError]);
+
+  useEffect(() => {
+    void loadSuggestions();
+  }, [loadSuggestions]);
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -37,6 +63,7 @@ export default function CreateJobForm({ onCreateJob }: CreateJobFormProps) {
       const { defendantName, processServer } = form;
       await onCreateJob(form);
       setForm(initialForm);
+      void loadSuggestions();
       showSuccess(
         `Job for ${defendantName} was created and assigned to ${processServer}.`,
         "Job created",
@@ -78,6 +105,7 @@ export default function CreateJobForm({ onCreateJob }: CreateJobFormProps) {
             <input
               type="text"
               required
+              list="create-job-client-suggestions"
               value={form.client}
               onChange={(event) =>
                 setForm((prev) => ({
@@ -88,6 +116,11 @@ export default function CreateJobForm({ onCreateJob }: CreateJobFormProps) {
               className={inputClassName}
               placeholder="Law firm or hiring client"
             />
+            <datalist id="create-job-client-suggestions">
+              {clientSuggestions.map((name) => (
+                <option key={name} value={name} />
+              ))}
+            </datalist>
           </label>
 
           <label className={labelClassName}>
@@ -112,6 +145,7 @@ export default function CreateJobForm({ onCreateJob }: CreateJobFormProps) {
             <input
               type="text"
               required
+              list="create-job-server-name-suggestions"
               value={form.processServer}
               onChange={(event) =>
                 setForm((prev) => ({
@@ -122,6 +156,11 @@ export default function CreateJobForm({ onCreateJob }: CreateJobFormProps) {
               className={inputClassName}
               placeholder="Process server name"
             />
+            <datalist id="create-job-server-name-suggestions">
+              {serverNameSuggestions.map((name) => (
+                <option key={name} value={name} />
+              ))}
+            </datalist>
           </label>
 
           <label className={`${labelClassName} md:col-span-2`}>

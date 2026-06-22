@@ -1,3 +1,4 @@
+import { PROCESS_SERVER_ROLE } from "@/lib/profiles";
 import { normalizeRole } from "@/lib/role";
 import { supabase } from "@/lib/supabase";
 import type { UserProfile } from "@/lib/profiles";
@@ -60,4 +61,26 @@ export async function fetchUserProfile(
   }
 
   return null;
+}
+
+export async function fetchProcessServerNameSuggestions(): Promise<string[]> {
+  const { data, error } = await supabase
+    .from("profiles")
+    .select("server_name")
+    .eq("role", PROCESS_SERVER_ROLE);
+
+  if (error) {
+    throw new Error(error.message);
+  }
+
+  const names = new Set<string>();
+
+  for (const row of data ?? []) {
+    const serverName = (row as Pick<ProfileRow, "server_name">).server_name?.trim();
+    if (serverName) {
+      names.add(serverName);
+    }
+  }
+
+  return Array.from(names).sort((a, b) => a.localeCompare(b));
 }
