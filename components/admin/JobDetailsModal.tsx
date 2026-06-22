@@ -4,7 +4,7 @@ import AttemptPhotoThumb from "@/components/admin/AttemptPhotoThumb";
 import PhotoViewerModal from "@/components/admin/PhotoViewerModal";
 import { emptyStatePresets, EmptyStateFromPreset } from "@/components/EmptyState";
 import { Job, jobStatusStyles } from "@/lib/admin";
-import { Attempt } from "@/lib/attempts";
+import { Attempt, getAttemptDisplayAddress, getJobDisplayAddress } from "@/lib/attempts";
 import { getPhotoFilename } from "@/lib/photos";
 import { useMemo, useState } from "react";
 
@@ -32,6 +32,11 @@ export default function JobDetailsModal({
     subtitle: string;
     filename: string;
   } | null>(null);
+
+  const displayAddress = useMemo(
+    () => getJobDisplayAddress(job.id, job.address, attempts),
+    [attempts, job.address, job.id],
+  );
 
   const jobAttempts = useMemo(
     () =>
@@ -89,7 +94,7 @@ export default function JobDetailsModal({
                   <p className="text-xs font-semibold uppercase tracking-wide text-gray-500">
                     Address
                   </p>
-                  <p className="mt-1 text-sm text-gray-800">{job.address}</p>
+                  <p className="mt-1 text-sm text-gray-800">{displayAddress}</p>
                 </div>
                 <div>
                   <p className="text-xs font-semibold uppercase tracking-wide text-gray-500">
@@ -170,7 +175,13 @@ export default function JobDetailsModal({
                 </div>
               ) : (
                 <ul className="mt-4 space-y-3">
-                  {jobAttempts.map((attempt) => (
+                  {jobAttempts.map((attempt) => {
+                    const attemptAddress = getAttemptDisplayAddress(
+                      attempt,
+                      attempts,
+                    );
+
+                    return (
                     <li
                       key={attempt.id}
                       className="rounded-xl border border-gray-200 bg-white p-4"
@@ -189,6 +200,11 @@ export default function JobDetailsModal({
                               Served: {attempt.personServedName}
                             </p>
                           ) : null}
+                          {attemptAddress ? (
+                            <p className="mt-2 text-sm text-gray-700">
+                              {attemptAddress}
+                            </p>
+                          ) : null}
                           {attempt.notes ? (
                             <p className="mt-1 text-sm text-gray-700">{attempt.notes}</p>
                           ) : null}
@@ -202,7 +218,8 @@ export default function JobDetailsModal({
                         ) : null}
                       </div>
                     </li>
-                  ))}
+                    );
+                  })}
                 </ul>
               )}
             </section>

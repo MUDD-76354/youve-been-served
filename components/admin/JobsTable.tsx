@@ -10,7 +10,7 @@ import JobDetailsModal from "@/components/admin/JobDetailsModal";
 import EditJobForm from "@/components/admin/EditJobForm";
 import JobStatusSelect from "@/components/admin/JobStatusSelect";
 import { EditJobInput, Job, JobStatus } from "@/lib/admin";
-import { Attempt, getLatestAttemptAddressForJob } from "@/lib/attempts";
+import { Attempt, getJobDisplayAddress } from "@/lib/attempts";
 import { filterJobsBySearch } from "@/lib/search";
 import { useMemo, useState } from "react";
 
@@ -23,7 +23,6 @@ type JobsTableProps = {
   description?: string;
   emptyPreset?: EmptyStatePreset;
   emptySearchPreset?: EmptyStatePreset;
-  useLatestAttemptAddress?: boolean;
 };
 
 function formatCreatedAt(value: string): string {
@@ -43,15 +42,14 @@ export default function JobsTable({
   description = "Track assignments, change status from the list, view attempt photos, and edit jobs.",
   emptyPreset = emptyStatePresets.adminNoJobs,
   emptySearchPreset = emptyStatePresets.adminNoJobsSearch,
-  useLatestAttemptAddress = false,
 }: JobsTableProps) {
   const [editingJob, setEditingJob] = useState<Job | null>(null);
   const [viewingJob, setViewingJob] = useState<Job | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
 
   const filteredJobs = useMemo(
-    () => filterJobsBySearch(jobs, searchQuery),
-    [jobs, searchQuery],
+    () => filterJobsBySearch(jobs, searchQuery, attempts),
+    [jobs, searchQuery, attempts],
   );
 
   const photoCountByJob = useMemo(() => {
@@ -128,13 +126,11 @@ export default function JobsTable({
               <tbody className="divide-y divide-gray-100">
                 {filteredJobs.map((job) => {
                   const photoCount = photoCountByJob.get(job.id) ?? 0;
-                  const displayAddress = useLatestAttemptAddress
-                    ? getLatestAttemptAddressForJob(
-                        job.id,
-                        job.address,
-                        attempts,
-                      )
-                    : job.address;
+                  const displayAddress = getJobDisplayAddress(
+                    job.id,
+                    job.address,
+                    attempts,
+                  );
 
                   return (
                     <tr key={job.id} className="align-top hover:bg-gray-50">

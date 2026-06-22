@@ -39,7 +39,7 @@ export type FailedAttemptInput = {
   notes: string;
 };
 
-export function getLatestAttemptAddressForJob(
+export function getJobDisplayAddress(
   jobId: string,
   jobAddress: string,
   attempts: Attempt[],
@@ -82,6 +82,17 @@ export type Attempt = {
   photoUrl: string | null;
   createdAt: string;
 };
+
+export function getAttemptDisplayAddress(
+  attempt: Attempt,
+  attempts: Attempt[],
+): string {
+  return getJobDisplayAddress(
+    attempt.jobId,
+    attempt.jobAddress ?? "",
+    attempts,
+  );
+}
 
 type JobSummary = {
   id: string;

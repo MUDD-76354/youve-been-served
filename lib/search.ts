@@ -1,5 +1,5 @@
 import { Job } from "@/lib/admin";
-import { Attempt } from "@/lib/attempts";
+import { Attempt, getAttemptDisplayAddress, getJobDisplayAddress } from "@/lib/attempts";
 
 export function normalizeSearchQuery(query: string): string {
   return query.trim().toLowerCase();
@@ -20,7 +20,11 @@ export function matchesSearchQuery(
   );
 }
 
-export function filterJobsBySearch(jobs: Job[], query: string): Job[] {
+export function filterJobsBySearch(
+  jobs: Job[],
+  query: string,
+  attempts: Attempt[] = [],
+): Job[] {
   if (!normalizeSearchQuery(query)) {
     return jobs;
   }
@@ -29,7 +33,7 @@ export function filterJobsBySearch(jobs: Job[], query: string): Job[] {
     matchesSearchQuery(query, [
       job.client,
       job.defendantName,
-      job.address,
+      getJobDisplayAddress(job.id, job.address, attempts),
       job.processServer,
     ]),
   );
@@ -46,8 +50,7 @@ export function filterAttemptsBySearch(
   return attempts.filter((attempt) =>
     matchesSearchQuery(query, [
       attempt.defendantName,
-      attempt.jobAddress,
-      attempt.address,
+      getAttemptDisplayAddress(attempt, attempts),
       attempt.processServerName,
     ]),
   );

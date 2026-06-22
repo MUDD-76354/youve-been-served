@@ -1,4 +1,8 @@
-import { Attempt, AttemptFilters } from "@/lib/attempts";
+import {
+  Attempt,
+  AttemptFilters,
+  getAttemptDisplayAddress,
+} from "@/lib/attempts";
 import { jsPDF } from "jspdf";
 import autoTable from "jspdf-autotable";
 
@@ -12,7 +16,6 @@ export type ReportRow = {
   address: string;
   mileage: string;
   notes: string;
-  jobAddress: string;
   photo: string;
 };
 
@@ -23,7 +26,10 @@ function formatReportDate(value: string): string {
   });
 }
 
-export function attemptToReportRow(attempt: Attempt): ReportRow {
+export function attemptToReportRow(
+  attempt: Attempt,
+  attempts: Attempt[],
+): ReportRow {
   return {
     date: formatReportDate(attempt.createdAt),
     defendant: attempt.defendantName,
@@ -31,10 +37,9 @@ export function attemptToReportRow(attempt: Attempt): ReportRow {
     outcome: attempt.attemptType,
     attemptType: attempt.typeOfServe ?? "",
     personServed: attempt.personServedName ?? "",
-    address: attempt.address ?? "",
+    address: getAttemptDisplayAddress(attempt, attempts),
     mileage: attempt.mileage !== null ? String(attempt.mileage) : "",
     notes: attempt.notes ?? "",
-    jobAddress: attempt.jobAddress ?? "",
     photo: attempt.photoUrl ?? "",
   };
 }
@@ -49,7 +54,6 @@ const reportHeaders = [
   "Address",
   "Mileage",
   "Notes",
-  "Job Address",
   "Photo URL",
 ] as const;
 
@@ -67,7 +71,7 @@ function reportFilename(extension: "csv" | "pdf"): string {
 }
 
 export function exportAttemptsToCsv(attempts: Attempt[]): void {
-  const rows = attempts.map(attemptToReportRow);
+  const rows = attempts.map((attempt) => attemptToReportRow(attempt, attempts));
   const lines = [
     reportHeaders.join(","),
     ...rows.map((row) =>
@@ -81,7 +85,6 @@ export function exportAttemptsToCsv(attempts: Attempt[]): void {
         row.address,
         row.mileage,
         row.notes,
-        row.jobAddress,
         row.photo,
       ]
         .map(escapeCsvValue)
@@ -135,7 +138,7 @@ export function exportAttemptsToPdf(
   filters: AttemptFilters,
 ): void {
   const doc = new jsPDF({ orientation: "landscape", unit: "pt", format: "letter" });
-  const rows = attempts.map(attemptToReportRow);
+  const rows = attempts.map((attempt) => attemptToReportRow(attempt, attempts));
 
   doc.setFontSize(16);
   doc.text("Bohn & Associates — Attempts Report", 40, 36);
@@ -160,7 +163,6 @@ export function exportAttemptsToPdf(
       row.address,
       row.mileage,
       row.notes,
-      row.jobAddress,
       row.photo ? "Yes" : "",
     ]),
     styles: { fontSize: 8, cellPadding: 4 },

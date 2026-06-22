@@ -13,6 +13,7 @@ import {
   AttemptFilters,
   fetchFilteredAttempts,
   fetchProcessServerNames,
+  getAttemptDisplayAddress,
   SERVE_TYPES,
 } from "@/lib/attempts";
 import { getErrorMessage } from "@/lib/errors";
@@ -356,7 +357,13 @@ export default function ReportsSection() {
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-100">
-                {filteredAttempts.map((attempt) => (
+                {filteredAttempts.map((attempt) => {
+                  const displayAddress = getAttemptDisplayAddress(
+                    attempt,
+                    attempts,
+                  );
+
+                  return (
                   <tr key={attempt.id} className="align-top hover:bg-gray-50">
                     <td className="px-4 py-4 text-gray-600">
                       {formatCreatedAt(attempt.createdAt)}
@@ -365,9 +372,9 @@ export default function ReportsSection() {
                       <p className="font-medium text-gray-900">
                         {attempt.defendantName}
                       </p>
-                      {attempt.jobAddress ? (
+                      {displayAddress ? (
                         <p className="mt-1 text-xs text-gray-600">
-                          {attempt.jobAddress}
+                          {displayAddress}
                         </p>
                       ) : null}
                     </td>
@@ -384,7 +391,6 @@ export default function ReportsSection() {
                       {attempt.personServedName ? (
                         <p>Served: {attempt.personServedName}</p>
                       ) : null}
-                      {attempt.address ? <p>{attempt.address}</p> : null}
                       {attempt.mileage !== null ? (
                         <p>Mileage: {attempt.mileage}</p>
                       ) : null}
@@ -405,7 +411,8 @@ export default function ReportsSection() {
                       )}
                     </td>
                   </tr>
-                ))}
+                  );
+                })}
               </tbody>
             </table>
           </div>

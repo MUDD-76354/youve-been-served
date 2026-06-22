@@ -6,7 +6,7 @@ import { useToast } from "@/components/ToastProvider";
 import AttemptPhotoThumb from "@/components/admin/AttemptPhotoThumb";
 import PhotoViewerModal from "@/components/admin/PhotoViewerModal";
 import { JobStatus, jobStatusStyles } from "@/lib/admin";
-import { Attempt } from "@/lib/attempts";
+import { Attempt, getAttemptDisplayAddress } from "@/lib/attempts";
 import { getErrorMessage } from "@/lib/errors";
 import { downloadPhoto, getPhotoFilename } from "@/lib/photos";
 import { filterAttemptsBySearch, normalizeSearchQuery } from "@/lib/search";
@@ -122,7 +122,13 @@ export default function AttemptsTable({ attempts }: AttemptsTableProps) {
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-100">
-                {filteredAttempts.map((attempt) => (
+                {filteredAttempts.map((attempt) => {
+                  const displayAddress = getAttemptDisplayAddress(
+                    attempt,
+                    attempts,
+                  );
+
+                  return (
                   <tr key={attempt.id} className="align-top hover:bg-gray-50">
                     <td className="px-4 py-4 text-gray-600">
                       {formatCreatedAt(attempt.createdAt)}
@@ -131,9 +137,9 @@ export default function AttemptsTable({ attempts }: AttemptsTableProps) {
                       <p className="font-medium text-gray-900">
                         {attempt.defendantName}
                       </p>
-                      {attempt.jobAddress ? (
+                      {displayAddress ? (
                         <p className="mt-1 text-xs text-gray-600">
-                          {attempt.jobAddress}
+                          {displayAddress}
                         </p>
                       ) : null}
                       {attempt.jobDocuments ? (
@@ -161,7 +167,6 @@ export default function AttemptsTable({ attempts }: AttemptsTableProps) {
                         <p>Served: {attempt.personServedName}</p>
                       ) : null}
                       {attempt.typeOfServe ? <p>{attempt.typeOfServe}</p> : null}
-                      {attempt.address ? <p>{attempt.address}</p> : null}
                       {attempt.mileage !== null ? <p>Mileage: {attempt.mileage}</p> : null}
                       {attempt.notes ? <p>{attempt.notes}</p> : null}
                     </td>
@@ -198,7 +203,8 @@ export default function AttemptsTable({ attempts }: AttemptsTableProps) {
                       )}
                     </td>
                   </tr>
-                ))}
+                  );
+                })}
               </tbody>
             </table>
           </div>
