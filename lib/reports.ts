@@ -14,9 +14,7 @@ export type ReportRow = {
   attemptType: string;
   personServed: string;
   address: string;
-  mileage: string;
-  notes: string;
-  photo: string;
+  documentsToServe: string;
 };
 
 function formatReportDate(value: string): string {
@@ -38,9 +36,7 @@ export function attemptToReportRow(
     attemptType: attempt.typeOfServe ?? "",
     personServed: attempt.personServedName ?? "",
     address: getAttemptDisplayAddress(attempt, attempts),
-    mileage: attempt.mileage !== null ? String(attempt.mileage) : "",
-    notes: attempt.notes ?? "",
-    photo: attempt.photoUrl ?? "",
+    documentsToServe: attempt.jobDocuments ?? "",
   };
 }
 
@@ -52,9 +48,7 @@ const reportHeaders = [
   "Attempt Type",
   "Person Served",
   "Address",
-  "Mileage",
-  "Notes",
-  "Photo URL",
+  "Documents to Serve",
 ] as const;
 
 function escapeCsvValue(value: string): string {
@@ -83,9 +77,7 @@ export function exportAttemptsToCsv(attempts: Attempt[]): void {
         row.attemptType,
         row.personServed,
         row.address,
-        row.mileage,
-        row.notes,
-        row.photo,
+        row.documentsToServe,
       ]
         .map(escapeCsvValue)
         .join(","),
@@ -161,9 +153,7 @@ export function exportAttemptsToPdf(
       row.attemptType,
       row.personServed,
       row.address,
-      row.mileage,
-      row.notes,
-      row.photo ? "Yes" : "",
+      row.documentsToServe,
     ]),
     styles: { fontSize: 8, cellPadding: 4 },
     headStyles: { fillColor: [31, 41, 55] },

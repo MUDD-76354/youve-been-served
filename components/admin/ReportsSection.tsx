@@ -352,8 +352,13 @@ export default function ReportsSection() {
                   <th className="px-4 py-3 font-semibold text-gray-700">
                     Attempt Type
                   </th>
-                  <th className="px-4 py-3 font-semibold text-gray-700">Details</th>
-                  <th className="px-4 py-3 font-semibold text-gray-700">Photo</th>
+                  <th className="px-4 py-3 font-semibold text-gray-700">
+                    Person Served
+                  </th>
+                  <th className="px-4 py-3 font-semibold text-gray-700">Address</th>
+                  <th className="px-4 py-3 font-semibold text-gray-700">
+                    Documents to Serve
+                  </th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-100">
@@ -368,15 +373,8 @@ export default function ReportsSection() {
                     <td className="px-4 py-4 text-gray-600">
                       {formatCreatedAt(attempt.createdAt)}
                     </td>
-                    <td className="max-w-xs px-4 py-4">
-                      <p className="font-medium text-gray-900">
-                        {attempt.defendantName}
-                      </p>
-                      {displayAddress ? (
-                        <p className="mt-1 text-xs text-gray-600">
-                          {displayAddress}
-                        </p>
-                      ) : null}
+                    <td className="max-w-xs px-4 py-4 font-medium text-gray-900">
+                      {attempt.defendantName}
                     </td>
                     <td className="px-4 py-4 text-gray-600">
                       {attempt.processServerName || "—"}
@@ -387,28 +385,14 @@ export default function ReportsSection() {
                     <td className="px-4 py-4 text-gray-600">
                       {attempt.typeOfServe || "—"}
                     </td>
-                    <td className="max-w-xs px-4 py-4 text-gray-600">
-                      {attempt.personServedName ? (
-                        <p>Served: {attempt.personServedName}</p>
-                      ) : null}
-                      {attempt.mileage !== null ? (
-                        <p>Mileage: {attempt.mileage}</p>
-                      ) : null}
-                      {attempt.notes ? <p>{attempt.notes}</p> : null}
+                    <td className="px-4 py-4 text-gray-600">
+                      {attempt.personServedName || "—"}
                     </td>
-                    <td className="px-4 py-4">
-                      {attempt.photoUrl ? (
-                        <a
-                          href={attempt.photoUrl}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="text-xs font-semibold text-blue-600 transition hover:text-blue-800"
-                        >
-                          View
-                        </a>
-                      ) : (
-                        <span className="text-gray-400">—</span>
-                      )}
+                    <td className="max-w-xs px-4 py-4 text-gray-600">
+                      {displayAddress || "—"}
+                    </td>
+                    <td className="max-w-xs px-4 py-4 text-gray-600">
+                      {attempt.jobDocuments || "—"}
                     </td>
                   </tr>
                   );
