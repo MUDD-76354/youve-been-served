@@ -141,6 +141,7 @@ export default function AdminPortal() {
             description="Jobs marked Completed after a successful serve was logged on Mobile. You can still view details, photos, and edit if needed."
             emptyPreset={emptyStatePresets.adminNoCompletedJobs}
             emptySearchPreset={emptyStatePresets.adminNoCompletedJobsSearch}
+            useLatestAttemptAddress
           />
         ) : null}
         {activeView === "attempts" && !attemptsLoading ? (

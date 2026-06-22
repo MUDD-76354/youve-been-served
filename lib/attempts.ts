@@ -39,6 +39,32 @@ export type FailedAttemptInput = {
   notes: string;
 };
 
+export function getLatestAttemptAddressForJob(
+  jobId: string,
+  jobAddress: string,
+  attempts: Attempt[],
+): string {
+  let latestAttempt: Attempt | null = null;
+
+  for (const attempt of attempts) {
+    if (attempt.jobId !== jobId) {
+      continue;
+    }
+
+    if (
+      !latestAttempt ||
+      new Date(attempt.createdAt).getTime() >
+        new Date(latestAttempt.createdAt).getTime()
+    ) {
+      latestAttempt = attempt;
+    }
+  }
+
+  const attemptAddress = latestAttempt?.address?.trim();
+
+  return attemptAddress || jobAddress;
+}
+
 export type Attempt = {
   id: string;
   jobId: string;

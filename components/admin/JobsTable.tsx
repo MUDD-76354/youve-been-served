@@ -10,7 +10,7 @@ import JobDetailsModal from "@/components/admin/JobDetailsModal";
 import EditJobForm from "@/components/admin/EditJobForm";
 import JobStatusSelect from "@/components/admin/JobStatusSelect";
 import { EditJobInput, Job, JobStatus } from "@/lib/admin";
-import { Attempt } from "@/lib/attempts";
+import { Attempt, getLatestAttemptAddressForJob } from "@/lib/attempts";
 import { filterJobsBySearch } from "@/lib/search";
 import { useMemo, useState } from "react";
 
@@ -23,6 +23,7 @@ type JobsTableProps = {
   description?: string;
   emptyPreset?: EmptyStatePreset;
   emptySearchPreset?: EmptyStatePreset;
+  useLatestAttemptAddress?: boolean;
 };
 
 function formatCreatedAt(value: string): string {
@@ -42,6 +43,7 @@ export default function JobsTable({
   description = "Track assignments, change status from the list, view attempt photos, and edit jobs.",
   emptyPreset = emptyStatePresets.adminNoJobs,
   emptySearchPreset = emptyStatePresets.adminNoJobsSearch,
+  useLatestAttemptAddress = false,
 }: JobsTableProps) {
   const [editingJob, setEditingJob] = useState<Job | null>(null);
   const [viewingJob, setViewingJob] = useState<Job | null>(null);
@@ -126,6 +128,13 @@ export default function JobsTable({
               <tbody className="divide-y divide-gray-100">
                 {filteredJobs.map((job) => {
                   const photoCount = photoCountByJob.get(job.id) ?? 0;
+                  const displayAddress = useLatestAttemptAddress
+                    ? getLatestAttemptAddressForJob(
+                        job.id,
+                        job.address,
+                        attempts,
+                      )
+                    : job.address;
 
                   return (
                     <tr key={job.id} className="align-top hover:bg-gray-50">
@@ -135,7 +144,9 @@ export default function JobsTable({
                       <td className="px-4 py-4 font-medium text-gray-900">
                         {job.defendantName}
                       </td>
-                      <td className="max-w-xs px-4 py-4 text-gray-600">{job.address}</td>
+                      <td className="max-w-xs px-4 py-4 text-gray-600">
+                        {displayAddress}
+                      </td>
                       <td className="max-w-xs px-4 py-4 text-gray-600">
                         {job.documentsToServe}
                       </td>
