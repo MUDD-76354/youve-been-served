@@ -318,7 +318,7 @@ export default function ReportsSection() {
                 <tr>
                   <th className="px-4 py-3 font-semibold text-gray-700">Date</th>
                   <th className="px-4 py-3 font-semibold text-gray-700">
-                    Defendant
+                    Subject Name
                   </th>
                   <th className="px-4 py-3 font-semibold text-gray-700">Server</th>
                   <th className="px-4 py-3 font-semibold text-gray-700">Outcome</th>

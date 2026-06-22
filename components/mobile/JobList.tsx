@@ -52,7 +52,12 @@ export default function JobList({
           >
             <div className="flex items-start justify-between gap-3">
               <div className="min-w-0 flex-1">
-                <p className="text-lg font-bold text-gray-900">{job.defendantName}</p>
+                <p className="text-xs font-semibold uppercase tracking-wide text-gray-500">
+                  Subject Name
+                </p>
+                <p className="mt-1 text-lg font-bold text-gray-900">
+                  {job.defendantName}
+                </p>
                 <p className="mt-2 text-sm leading-relaxed text-gray-600">
                   {job.address}
                 </p>

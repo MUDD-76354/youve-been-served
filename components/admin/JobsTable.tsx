@@ -112,7 +112,7 @@ export default function JobsTable({
             <table className="min-w-full divide-y divide-gray-200 text-left text-sm">
               <thead className="bg-gray-50">
                 <tr>
-                  <th className="px-4 py-3 font-semibold text-gray-700">Defendant</th>
+                  <th className="px-4 py-3 font-semibold text-gray-700">Subject Name</th>
                   <th className="px-4 py-3 font-semibold text-gray-700">Address</th>
                   <th className="px-4 py-3 font-semibold text-gray-700">Documents</th>
                   <th className="px-4 py-3 font-semibold text-gray-700">Server</th>

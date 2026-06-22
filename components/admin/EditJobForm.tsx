@@ -101,7 +101,7 @@ export default function EditJobForm({ job, onSave, onCancel }: EditJobFormProps)
             </label>
 
             <label className={labelClassName}>
-              Defendant Name
+              Subject Name
               <input
                 type="text"
                 required

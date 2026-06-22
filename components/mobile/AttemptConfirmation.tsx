@@ -216,7 +216,7 @@ export default function AttemptConfirmation({
           <div className="flex items-start justify-between gap-4">
             <div className="min-w-0 flex-1">
               <p className="text-xs font-semibold uppercase tracking-wide text-gray-500">
-                Defendant
+                Subject Name
               </p>
               <p className="mt-1 text-2xl font-bold leading-tight text-gray-900">
                 {job.defendantName}

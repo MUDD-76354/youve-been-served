@@ -65,7 +65,12 @@ export default function JobDetailsModal({
         <div className="max-h-[90vh] w-full max-w-3xl overflow-y-auto rounded-2xl bg-white shadow-xl">
           <div className="sticky top-0 flex items-start justify-between gap-4 border-b border-gray-200 bg-white px-6 py-4">
             <div>
-              <h2 className="text-xl font-bold text-gray-900">{job.defendantName}</h2>
+              <p className="text-xs font-semibold uppercase tracking-wide text-gray-500">
+                Subject Name
+              </p>
+              <h2 className="mt-1 text-xl font-bold text-gray-900">
+                {job.defendantName}
+              </h2>
               <p className="mt-1 text-sm text-gray-600">Job details and attempt history</p>
             </div>
             <button

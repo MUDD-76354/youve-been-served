@@ -124,7 +124,7 @@ export default function CreateJobForm({ onCreateJob }: CreateJobFormProps) {
           </label>
 
           <label className={labelClassName}>
-            Defendant Name
+            Subject Name
             <input
               type="text"
               required
@@ -136,7 +136,7 @@ export default function CreateJobForm({ onCreateJob }: CreateJobFormProps) {
                 }))
               }
               className={inputClassName}
-              placeholder="Full defendant name"
+              placeholder="Full subject name"
             />
           </label>
 

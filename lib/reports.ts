@@ -41,7 +41,7 @@ export function attemptToReportRow(attempt: Attempt): ReportRow {
 
 const reportHeaders = [
   "Date",
-  "Defendant",
+  "Subject Name",
   "Server",
   "Outcome",
   "Attempt Type",

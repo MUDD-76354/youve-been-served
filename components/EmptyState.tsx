@@ -25,7 +25,7 @@ export const emptyStatePresets = {
   adminNoJobsSearch: {
     title: "No matching jobs",
     description:
-      "Try searching by a different defendant name, address, or process server. You can also clear the search to see all jobs.",
+      "Try searching by a different subject name, address, or process server. You can also clear the search to see all jobs.",
     icon: "search",
   },
   adminNoCompletedJobs: {
@@ -37,7 +37,7 @@ export const emptyStatePresets = {
   adminNoCompletedJobsSearch: {
     title: "No matching completed jobs",
     description:
-      "Try searching by a different defendant name, address, or process server. You can also clear the search to see all completed jobs.",
+      "Try searching by a different subject name, address, or process server. You can also clear the search to see all completed jobs.",
     icon: "search",
   },
   adminNoAttempts: {
@@ -49,7 +49,7 @@ export const emptyStatePresets = {
   adminNoAttemptsSearch: {
     title: "No matching attempts",
     description:
-      "Try a different defendant name, address, or process server. Clear the search bar to see all attempts.",
+      "Try a different subject name, address, or process server. Clear the search bar to see all attempts.",
     icon: "search",
   },
   adminNoAttemptsFilter: {
