@@ -16,6 +16,7 @@ export const jobStatusStyles: Record<JobStatus, string> = {
 
 export type Job = {
   id: string;
+  client: string;
   defendantName: string;
   address: string;
   documentsToServe: string;
@@ -26,6 +27,7 @@ export type Job = {
 };
 
 export type NewJobInput = {
+  client: string;
   defendantName: string;
   address: string;
   documentsToServe: string;

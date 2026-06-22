@@ -3,6 +3,7 @@ import { supabase } from "@/lib/supabase";
 
 type JobRow = {
   id: string;
+  client: string | null;
   defendant_name: string;
   address: string;
   documents: string;
@@ -14,6 +15,7 @@ type JobRow = {
 function mapJobRowToJob(row: JobRow): Job {
   return {
     id: row.id,
+    client: row.client ?? "",
     defendantName: row.defendant_name,
     address: row.address,
     documentsToServe: row.documents,
@@ -28,7 +30,7 @@ export async function fetchJobs(): Promise<Job[]> {
   const { data, error } = await supabase
     .from("jobs")
     .select(
-      "id, defendant_name, address, documents, assigned_to, status, created_at",
+      "id, client, defendant_name, address, documents, assigned_to, status, created_at",
     )
     .order("created_at", { ascending: false });
 
@@ -43,6 +45,7 @@ export async function createJob(input: NewJobInput): Promise<Job> {
   const { data, error } = await supabase
     .from("jobs")
     .insert({
+      client: input.client,
       defendant_name: input.defendantName,
       address: input.address,
       documents: input.documentsToServe,
@@ -50,7 +53,7 @@ export async function createJob(input: NewJobInput): Promise<Job> {
       status: "Assigned",
     })
     .select(
-      "id, defendant_name, address, documents, assigned_to, status, created_at",
+      "id, client, defendant_name, address, documents, assigned_to, status, created_at",
     )
     .single();
 
@@ -68,6 +71,7 @@ export async function updateJob(
   const { data, error } = await supabase
     .from("jobs")
     .update({
+      client: input.client,
       defendant_name: input.defendantName,
       address: input.address,
       documents: input.documentsToServe,
@@ -76,7 +80,7 @@ export async function updateJob(
     })
     .eq("id", jobId)
     .select(
-      "id, defendant_name, address, documents, assigned_to, status, created_at",
+      "id, client, defendant_name, address, documents, assigned_to, status, created_at",
     )
     .single();
 
@@ -96,7 +100,7 @@ export async function updateJobStatus(
     .update({ status })
     .eq("id", jobId)
     .select(
-      "id, defendant_name, address, documents, assigned_to, status, created_at",
+      "id, client, defendant_name, address, documents, assigned_to, status, created_at",
     )
     .single();
 

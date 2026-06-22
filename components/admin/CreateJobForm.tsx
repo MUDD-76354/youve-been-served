@@ -10,6 +10,7 @@ type CreateJobFormProps = {
 };
 
 const initialForm: NewJobInput = {
+  client: "",
   defendantName: "",
   address: "",
   documentsToServe: "",
@@ -72,6 +73,23 @@ export default function CreateJobForm({ onCreateJob }: CreateJobFormProps) {
         className="rounded-xl border border-gray-200 bg-white p-6 shadow-sm"
       >
         <div className="grid gap-5 md:grid-cols-2">
+          <label className={`${labelClassName} md:col-span-2`}>
+            Client
+            <input
+              type="text"
+              required
+              value={form.client}
+              onChange={(event) =>
+                setForm((prev) => ({
+                  ...prev,
+                  client: event.target.value,
+                }))
+              }
+              className={inputClassName}
+              placeholder="Law firm or hiring client"
+            />
+          </label>
+
           <label className={labelClassName}>
             Defendant Name
             <input

@@ -18,6 +18,7 @@ const labelClassName = "block text-sm font-medium text-gray-700";
 
 function jobToForm(job: Job): EditJobInput {
   return {
+    client: job.client,
     defendantName: job.defendantName,
     address: job.address,
     documentsToServe: job.documentsToServe,
@@ -82,6 +83,23 @@ export default function EditJobForm({ job, onSave, onCancel }: EditJobFormProps)
 
         <form onSubmit={handleSubmit} className="space-y-5">
           <div className="grid gap-5 md:grid-cols-2">
+            <label className={`${labelClassName} md:col-span-2`}>
+              Client
+              <input
+                type="text"
+                required
+                value={form.client}
+                onChange={(event) =>
+                  setForm((prev) => ({
+                    ...prev,
+                    client: event.target.value,
+                  }))
+                }
+                className={inputClassName}
+                placeholder="Law firm or hiring client"
+              />
+            </label>
+
             <label className={labelClassName}>
               Defendant Name
               <input
