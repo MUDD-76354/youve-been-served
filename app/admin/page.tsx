@@ -8,6 +8,7 @@ import CreateJobForm from "@/components/admin/CreateJobForm";
 import CreateUserForm from "@/components/admin/CreateUserForm";
 import ManageUsersSection from "@/components/admin/ManageUsersSection";
 import DashboardOverview from "@/components/admin/DashboardOverview";
+import CompletedJobsTable from "@/components/admin/CompletedJobsTable";
 import JobsTable from "@/components/admin/JobsTable";
 import ReportsSection from "@/components/admin/ReportsSection";
 import { emptyStatePresets } from "@/components/EmptyState";
@@ -20,7 +21,12 @@ import {
   JobStatus,
   NewJobInput,
 } from "@/lib/admin";
-import { fetchAttempts, type Attempt } from "@/lib/attempts";
+import {
+  EditAttemptInput,
+  fetchAttempts,
+  updateAttempt,
+  type Attempt,
+} from "@/lib/attempts";
 import { getErrorMessage } from "@/lib/errors";
 import { createJob, fetchJobs, updateJob, updateJobStatus } from "@/lib/jobs";
 import { useCallback, useEffect, useState } from "react";
@@ -96,6 +102,18 @@ export default function AdminPortal() {
     );
   }
 
+  async function handleUpdateAttempt(
+    attemptId: string,
+    input: EditAttemptInput,
+  ) {
+    const updatedAttempt = await updateAttempt(attemptId, input);
+    setAttempts((prev) =>
+      prev.map((attempt) =>
+        attempt.id === attemptId ? updatedAttempt : attempt,
+      ),
+    );
+  }
+
   const activeJobs = filterActiveJobs(jobs);
   const completedJobs = filterCompletedJobs(jobs);
 
@@ -132,15 +150,12 @@ export default function AdminPortal() {
           />
         ) : null}
         {activeView === "completed" && !loading && !attemptsLoading ? (
-          <JobsTable
+          <CompletedJobsTable
             jobs={completedJobs}
             attempts={attempts}
             onUpdateJob={handleUpdateJob}
             onUpdateJobStatus={handleUpdateJobStatus}
-            title="Completed Jobs"
-            description="Jobs marked Completed after a successful serve was logged on Mobile. You can still view details, photos, and edit if needed."
-            emptyPreset={emptyStatePresets.adminNoCompletedJobs}
-            emptySearchPreset={emptyStatePresets.adminNoCompletedJobsSearch}
+            onUpdateAttempt={handleUpdateAttempt}
           />
         ) : null}
         {activeView === "attempts" && !attemptsLoading ? (

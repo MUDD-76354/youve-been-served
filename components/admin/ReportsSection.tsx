@@ -13,6 +13,8 @@ import {
   AttemptFilters,
   fetchFilteredAttempts,
   fetchProcessServerNames,
+  formatServiceDate,
+  formatServiceTime,
   getAttemptDisplayAddress,
   SERVE_TYPES,
 } from "@/lib/attempts";
@@ -30,13 +32,6 @@ const emptyFilters: AttemptFilters = {
   outcome: "",
   typeOfServe: "",
 };
-
-function formatCreatedAt(value: string): string {
-  return new Date(value).toLocaleString("en-US", {
-    dateStyle: "medium",
-    timeStyle: "short",
-  });
-}
 
 function toQueryFilters(filters: AttemptFilters): AttemptFilters {
   return {
@@ -343,7 +338,12 @@ export default function ReportsSection() {
             <table className="min-w-full divide-y divide-gray-200 text-left text-sm">
               <thead className="bg-gray-50">
                 <tr>
-                  <th className="px-4 py-3 font-semibold text-gray-700">Date</th>
+                  <th className="px-4 py-3 font-semibold text-gray-700">
+                    Service Date
+                  </th>
+                  <th className="px-4 py-3 font-semibold text-gray-700">
+                    Service Time
+                  </th>
                   <th className="px-4 py-3 font-semibold text-gray-700">
                     Subject Name
                   </th>
@@ -371,7 +371,10 @@ export default function ReportsSection() {
                   return (
                   <tr key={attempt.id} className="align-top hover:bg-gray-50">
                     <td className="px-4 py-4 text-gray-600">
-                      {formatCreatedAt(attempt.createdAt)}
+                      {formatServiceDate(attempt.createdAt)}
+                    </td>
+                    <td className="px-4 py-4 text-gray-600">
+                      {formatServiceTime(attempt.createdAt)}
                     </td>
                     <td className="max-w-xs px-4 py-4 font-medium text-gray-900">
                       {attempt.defendantName}

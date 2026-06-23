@@ -48,3 +48,11 @@ on public.attempts
 for insert
 to anon, authenticated
 with check (true);
+
+drop policy if exists "Allow public update access on attempts" on public.attempts;
+create policy "Allow public update access on attempts"
+on public.attempts
+for update
+to anon, authenticated
+using (true)
+with check (true);

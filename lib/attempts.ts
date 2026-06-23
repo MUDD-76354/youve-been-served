@@ -39,6 +39,12 @@ export type FailedAttemptInput = {
   notes: string;
 };
 
+export type EditAttemptInput = {
+  serviceDate: string;
+  serviceTime: string;
+  editNote: string;
+};
+
 export function getJobDisplayAddress(
   jobId: string,
   jobAddress: string,
@@ -65,6 +71,64 @@ export function getJobDisplayAddress(
   return attemptAddress || jobAddress;
 }
 
+export function getSuccessfulAttemptForJob(
+  jobId: string,
+  attempts: Attempt[],
+): Attempt | null {
+  let latestAttempt: Attempt | null = null;
+
+  for (const attempt of attempts) {
+    if (
+      attempt.jobId !== jobId ||
+      attempt.attemptType !== "Successful Serve"
+    ) {
+      continue;
+    }
+
+    if (
+      !latestAttempt ||
+      new Date(attempt.createdAt).getTime() >
+        new Date(latestAttempt.createdAt).getTime()
+    ) {
+      latestAttempt = attempt;
+    }
+  }
+
+  return latestAttempt;
+}
+
+export function formatServiceDate(value: string): string {
+  return new Date(value).toLocaleDateString("en-US", {
+    month: "short",
+    day: "numeric",
+    year: "numeric",
+  });
+}
+
+export function formatServiceTime(value: string): string {
+  return new Date(value).toLocaleTimeString("en-US", {
+    hour: "numeric",
+    minute: "2-digit",
+  });
+}
+
+export function toServiceDateInputValue(value: string): string {
+  const date = new Date(value);
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, "0");
+  const day = String(date.getDate()).padStart(2, "0");
+
+  return `${year}-${month}-${day}`;
+}
+
+export function toServiceTimeInputValue(value: string): string {
+  const date = new Date(value);
+  const hours = String(date.getHours()).padStart(2, "0");
+  const minutes = String(date.getMinutes()).padStart(2, "0");
+
+  return `${hours}:${minutes}`;
+}
+
 export type Attempt = {
   id: string;
   jobId: string;
@@ -79,6 +143,7 @@ export type Attempt = {
   address: string | null;
   mileage: number | null;
   notes: string | null;
+  editNotes: string;
   photoUrl: string | null;
   createdAt: string;
 };
@@ -112,6 +177,7 @@ type AttemptRow = {
   address: string | null;
   mileage: number | null;
   notes: string | null;
+  edit_notes: string | null;
   photo_url: string | null;
   created_at: string;
 };
@@ -134,6 +200,7 @@ function mapAttemptRow(
     address: row.address,
     mileage: row.mileage,
     notes: row.notes,
+    editNotes: row.edit_notes ?? "",
     photoUrl: row.photo_url,
     createdAt: row.created_at,
   };
@@ -144,7 +211,7 @@ function parseMileage(value: string): number {
 }
 
 const attemptSelectBase =
-  "id, job_id, process_server_name, attempt_type, type_of_serve, person_served_name, address, mileage, notes, created_at";
+  "id, job_id, process_server_name, attempt_type, type_of_serve, person_served_name, address, mileage, notes, edit_notes, created_at";
 
 function startOfDayIso(date: string): string {
   return new Date(`${date}T00:00:00`).toISOString();
@@ -397,4 +464,30 @@ export async function saveAttempt(
   }
 
   return mapAttemptRow(row as AttemptRow);
+}
+
+export async function updateAttempt(
+  attemptId: string,
+  input: EditAttemptInput,
+): Promise<Attempt> {
+  const createdAt = new Date(
+    `${input.serviceDate}T${input.serviceTime}`,
+  ).toISOString();
+
+  const { data, error } = await supabase
+    .from("attempts")
+    .update({
+      created_at: createdAt,
+      edit_notes: input.editNote.trim(),
+    })
+    .eq("id", attemptId)
+    .select(`${attemptSelectBase}, photo_url`)
+    .single();
+
+  if (error) {
+    throw new Error(error.message);
+  }
+
+  const [updatedAttempt] = await attachJobDetails([data as AttemptRow]);
+  return updatedAttempt;
 }

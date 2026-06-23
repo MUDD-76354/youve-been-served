@@ -1,13 +1,16 @@
 import {
   Attempt,
   AttemptFilters,
+  formatServiceDate,
+  formatServiceTime,
   getAttemptDisplayAddress,
 } from "@/lib/attempts";
 import { jsPDF } from "jspdf";
 import autoTable from "jspdf-autotable";
 
 export type ReportRow = {
-  date: string;
+  serviceDate: string;
+  serviceTime: string;
   defendant: string;
   server: string;
   outcome: string;
@@ -17,7 +20,7 @@ export type ReportRow = {
   documentsToServe: string;
 };
 
-function formatReportDate(value: string): string {
+function formatReportGeneratedAt(value: string): string {
   return new Date(value).toLocaleString("en-US", {
     dateStyle: "medium",
     timeStyle: "short",
@@ -29,7 +32,8 @@ export function attemptToReportRow(
   attempts: Attempt[],
 ): ReportRow {
   return {
-    date: formatReportDate(attempt.createdAt),
+    serviceDate: formatServiceDate(attempt.createdAt),
+    serviceTime: formatServiceTime(attempt.createdAt),
     defendant: attempt.defendantName,
     server: attempt.processServerName,
     outcome: attempt.attemptType,
@@ -41,7 +45,8 @@ export function attemptToReportRow(
 }
 
 const reportHeaders = [
-  "Date",
+  "Service Date",
+  "Service Time",
   "Subject Name",
   "Server",
   "Outcome",
@@ -70,7 +75,8 @@ export function exportAttemptsToCsv(attempts: Attempt[]): void {
     reportHeaders.join(","),
     ...rows.map((row) =>
       [
-        row.date,
+        row.serviceDate,
+        row.serviceTime,
         row.defendant,
         row.server,
         row.outcome,
@@ -137,7 +143,7 @@ export function exportAttemptsToPdf(
 
   doc.setFontSize(10);
   doc.setTextColor(80);
-  doc.text(`Generated ${formatReportDate(new Date().toISOString())}`, 40, 54);
+  doc.text(`Generated ${formatReportGeneratedAt(new Date().toISOString())}`, 40, 54);
   doc.text(formatFilterSummary(filters).join("  ·  "), 40, 68);
   doc.text(`${attempts.length} result${attempts.length === 1 ? "" : "s"}`, 40, 82);
   doc.setTextColor(0);
@@ -146,7 +152,8 @@ export function exportAttemptsToPdf(
     startY: 96,
     head: [reportHeaders as unknown as string[]],
     body: rows.map((row) => [
-      row.date,
+      row.serviceDate,
+      row.serviceTime,
       row.defendant,
       row.server,
       row.outcome,
